@@ -226,7 +226,7 @@ public class ModuleButton extends AbstractButton {
                         isRu() ? "Да" : "Yes", isRu() ? "Нет" : "No",
                         () -> {
                             if (module.isEnabled()) module.disable("reseting");
-                            for (Setting<?> s : module.getSettings()) {
+                            for (Setting s : module.getSettings()) {
                                 if (s.getValue() instanceof ColorSetting cs) cs.setDefault();
                                 else s.setValue(s.getDefaultValue());
                             }
@@ -284,4 +284,5 @@ public class ModuleButton extends AbstractButton {
         if (isOpen()) { gearAnimation.tick(); ticksOpened++; }
         else            ticksOpened = 0;
     }
-}
+                                        }
+                      
