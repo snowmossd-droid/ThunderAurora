@@ -19,7 +19,6 @@ import acore.aurora.utility.render.Render2DEngine;
 
 import java.awt.*;
 import java.util.*;
-
 import static acore.aurora.features.modules.Module.mc;
 
 public class ClickGUI extends Screen {
@@ -35,14 +34,21 @@ public class ClickGUI extends Screen {
     private static final int SEARCH_H     = 20;
     private static final int SEARCH_MB    = 10;
 
-    private static final Set<Module.Category> CATS = EnumSet.of(
+    private static final Set<Module.Category> CATS = new java.util.LinkedHashSet<>(Arrays.asList(
             Module.Category.COMBAT, Module.Category.MISC,
-            Module.Category.RENDER, Module.Category.MOVEMENT, Module.Category.PLAYER);
+            Module.Category.RENDER, Module.Category.MOVEMENT, Module.Category.PLAYER));
 
     private static final Map<Module.Category, Float> scrollOff = new HashMap<>();
     private static final Map<Module.Category, Float> scrollTgt = new HashMap<>();
     private final Map<Module, Float> expandAnim   = new HashMap<>();
     private final Map<Module, Float> arrowAnim    = new HashMap<>();
+
+    public static boolean anyHovered = false;
+    public static boolean close = false;
+    public static boolean imageDirection = true;
+    public final ImageAnimationStub imageAnimation = new ImageAnimationStub();
+
+    public static class ImageAnimationStub { public void reset() {} }
 
     private float openAnim = 0f;
     private boolean closing = false;
@@ -157,7 +163,7 @@ public class ClickGUI extends Screen {
 
             if (settH > 0) {
                 float setY = curY + MODULE_H;
-                Render2DEngine.addWindow(ctx.getMatrices(), x + 1, (int)setY, x + PANEL_W - 1, (int)(setY + settH));
+                Render2DEngine.addWindow(ctx.getMatrices(), x + 1, (int)setY, x + PANEL_W - 1, (int)(setY + settH), 1f);
                 ctx.getMatrices().push();
                 for (Setting<?> s : mod.getSettings()) {
                     if (!s.isVisible()) continue;
@@ -384,5 +390,5 @@ public class ClickGUI extends Screen {
         if (s.isEnumSetting() && !(s.getValue() instanceof PositionSetting)) return modeRend.getHeight(s, PANEL_W - 20);
         return 0;
     }
-            }
-    
+                       }
+                                                                                  
