@@ -60,7 +60,9 @@ public class SliderBarRenderer {
         double nv = min + pct * (max - min);
         nv = Math.round(nv / inc) * inc;
         nv = Math.max(min, Math.min(max, nv));
-        s.setValue((float)nv);
+        @SuppressWarnings("unchecked")
+        Setting<Float> fs = (Setting<Float>) s;
+        fs.setValue((float)nv);
     }
 
     private double getVal(Setting<?> s) { Object v = s.getValue(); if (v instanceof Float f) return f; if (v instanceof Double d) return d; if (v instanceof Integer i) return i; return 0; }
@@ -75,4 +77,4 @@ public class SliderBarRenderer {
     }
 
     public int getHeight(Setting<?> s, int width) { return H; }
-}
+    }
