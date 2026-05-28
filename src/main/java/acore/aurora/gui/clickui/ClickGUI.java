@@ -52,7 +52,7 @@ public class ClickGUI extends Screen {
 
     private Module bindingModule = null;
 
-    private acore.aurora.setting.impl.SliderSetting draggingSlider = null;
+    private Setting<?> draggingSlider = null;
     private int draggingSliderX, draggingSliderW;
 
     private static final ToggleSwitchRenderer  boolRend   = new ToggleSwitchRenderer();
@@ -286,7 +286,7 @@ public class ClickGUI extends Screen {
                                 boolRend.mouseClicked(s, mx, my, btn, px + 10, (int)setY, PANEL_W - 20, sh);
                             } else if (s.isNumberSetting() && s.hasRestriction()) {
                                 if (sliderRend.mouseClicked(s, mx, my, btn, px + 10, (int)setY - 2, PANEL_W - 20, sh)) {
-                                    draggingSlider = (acore.aurora.setting.impl.SliderSetting) s;
+                                    draggingSlider = s;
                                     draggingSliderX = px + 10; draggingSliderW = PANEL_W - 20;
                                     return true;
                                 }
@@ -384,4 +384,5 @@ public class ClickGUI extends Screen {
         if (s.isEnumSetting() && !(s.getValue() instanceof PositionSetting)) return modeRend.getHeight(s, PANEL_W - 20);
         return 0;
     }
-}
+            }
+    
