@@ -13,6 +13,7 @@ import acore.aurora.features.hud.impl.TargetHud;
 import acore.aurora.features.modules.Module;
 import acore.aurora.features.modules.client.ClickGui;
 import acore.aurora.features.modules.client.HudEditor;
+import acore.aurora.features.modules.client.HudEditor;
 import acore.aurora.gui.clickui.impl.*;
 import acore.aurora.gui.font.FontRenderers;
 import acore.aurora.gui.misc.DialogScreen;
@@ -22,13 +23,17 @@ import acore.aurora.utility.render.Render2DEngine;
 import acore.aurora.utility.render.TextureStorage;
 import acore.aurora.utility.render.animation.AnimationUtility;
 import acore.aurora.utility.render.animation.GearAnimation;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
 import static acore.aurora.features.modules.Module.mc;
 import static acore.aurora.features.modules.client.ClientSettings.isRu;
 import static acore.aurora.utility.render.animation.AnimationUtility.fast;
+
 public class ModuleButton extends AbstractButton {
+
     private final List<AbstractElement> elements;
     public final Module module;
     private boolean open;
@@ -37,17 +42,18 @@ public class ModuleButton extends AbstractButton {
     float category_animation = 0f;
     int ticksOpened;
     private final GearAnimation gearAnimation = new GearAnimation();
-    private boolean binding = false;
+    private boolean binding  = false;
     private boolean holdbind = false;
+
     private static final Color ROW_BG_HOVER   = new Color(255, 255, 255, 12);
     private static final Color ROW_BG_ENABLED = new Color(255, 255, 255, 7);
     private static final Color NAME_ENABLED   = new Color(235, 235, 245, 255);
     private static final Color NAME_DISABLED  = new Color(110, 110, 130, 255);
     private static final Color BIND_TEXT      = new Color(80, 80, 100, 200);
-    private static final Color ARROW_COL      = new Color(90, 90, 115, 210);
     private static final Color ROW_DIVIDER    = new Color(45, 45, 58, 150);
-    private static final Color TRACK_OFF  = new Color(50, 50, 62, 230);
-    private static final Color KNOB_WHITE = new Color(248, 248, 250, 255);
+    private static final Color TRACK_OFF      = new Color(50, 50, 62, 230);
+    private static final Color KNOB_WHITE     = new Color(248, 248, 250, 255);
+
     public ModuleButton(Module module) {
         this.module = module;
         elements = new ArrayList<>();
@@ -74,24 +80,34 @@ public class ModuleButton extends AbstractButton {
             }
         }
     }
+
     public void init() { elements.forEach(AbstractElement::init); }
+
     public void render(DrawContext ctx, int mx, int my, float delta) {
         hovered   = Render2DEngine.isHovered(mx, my, x, y, width, height);
         animation  = fast(animation,  module.isEnabled() ? 1f : 0f, 9f);
         animation2 = fast(animation2, 1f, 10f);
+
         if (hovered) {
             if (!prevHovered) Managers.SOUND.playScroll();
             ClickGUI.currentDescription = I18n.translate(module.getDescription());
+        }
         prevHovered = hovered;
+
         offsetY = AnimationUtility.fast(offsetY, target_offset, 20f);
+
         if (hovered || module.isEnabled()) {
             Color rowCol = hovered ? ROW_BG_HOVER : ROW_BG_ENABLED;
             Render2DEngine.drawRect(ctx.getMatrices(), x + 2, y + 0.5f, width - 4, height - 1f, rowCol);
+        }
+
         Render2DEngine.drawRect(ctx.getMatrices(), x + 6, y + height - 0.5f, width - 12, 0.5f, ROW_DIVIDER);
+
         float trackW = 24f;
         float trackH = 11f;
         float trackX = x + width - trackW - 7;
         float trackY = y + height / 2f - trackH / 2f;
+
         Color raw = HudEditor.getColor(0);
         Color accentOn = (raw.getAlpha() < 10 || (raw.getRed() < 5 && raw.getGreen() < 5 && raw.getBlue() < 5))
                 ? new Color(200, 80, 80, 255) : raw;
@@ -99,35 +115,45 @@ public class ModuleButton extends AbstractButton {
         int tg = (int)(TRACK_OFF.getGreen() + (accentOn.getGreen() - TRACK_OFF.getGreen()) * animation);
         int tb = (int)(TRACK_OFF.getBlue()  + (accentOn.getBlue()  - TRACK_OFF.getBlue())  * animation);
         Render2DEngine.drawRound(ctx.getMatrices(), trackX, trackY, trackW, trackH, 6f, new Color(tr, tg, tb, 230));
+
         float knobSize   = trackH - 4f;
         float knobTravel = trackW - knobSize - 4f;
         float knobX      = trackX + 2f + knobTravel * animation;
         float knobY      = trackY + 2f;
         Render2DEngine.drawRound(ctx.getMatrices(), knobX, knobY, knobSize, knobSize, 5f, KNOB_WHITE);
+
         float nameX = x + 8;
         float nameY = y + height / 2f - 4f;
         int nameCol = animation > 0.5f ? NAME_ENABLED.getRGB() : NAME_DISABLED.getRGB();
+
         if (hovered && InputUtil.isKeyPressed(mc.getWindow().getHandle(), InputUtil.GLFW_KEY_LEFT_SHIFT)) {
             FontRenderers.sf_medium_modules.drawString(ctx.getMatrices(),
                     "Drawn " + (module.isDrawn() ? Formatting.GREEN + "TRUE" : Formatting.RED + "FALSE"),
                     nameX, nameY, nameCol);
         } else if (binding) {
+            FontRenderers.sf_medium_modules.drawString(ctx.getMatrices(),
                     holdbind ? (Formatting.GRAY + "Toggle / " + Formatting.RESET + "Hold")
                              : (Formatting.RESET + "Toggle " + Formatting.GRAY + "/ Hold"),
                     nameX, nameY,
                     Render2DEngine.applyOpacity(Color.WHITE.getRGB(), animation2));
         } else {
             FontRenderers.sf_medium_modules.drawString(ctx.getMatrices(), module.getName(), nameX, nameY, nameCol);
+        }
+
         if (!module.getBind().getBind().equalsIgnoreCase("none") && !binding) {
             String sb = formatBind(module.getBind().getBind());
             float bx  = trackX - FontRenderers.sf_medium_modules.getStringWidth(sb) - 5;
             FontRenderers.sf_medium_modules.drawString(ctx.getMatrices(), sb, bx, nameY, BIND_TEXT.getRGB());
+        }
+
         if (module.getSettings().size() > 3 && isOpen()) {
             float subOffY  = 0;
             float subBaseY = y + height + 2;
+
             Render2DEngine.addWindow(ctx.getMatrices(),
                     new Render2DEngine.Rectangle(x + 1, y + height - 2, x + width - 2,
                             (float)(y + height + 1f + getElementsHeight())));
+
             for (AbstractElement el : elements) {
                 if (!el.isVisible()) continue;
                 el.setOffsetY(subOffY);
@@ -142,21 +168,31 @@ public class ModuleButton extends AbstractButton {
                     el.setHeight(me.isOpen() ? 13 + me.getSetting().getModes().length * 12 : 13);
                 }
                 subOffY += el.getHeight();
+            }
+
             ctx.getMatrices().push();
             TargetHud.sizeAnimation(ctx.getMatrices(), x + width / 2f + 6, y + height / 2f - 12,
                     ticksOpened < 5 ? Math.clamp(category_animation / subOffY, 0f, 1f) : 1f);
             elements.forEach(e -> { if (e.isVisible()) e.render(ctx, mx, my, delta); });
             ctx.getMatrices().pop();
+
             Render2DEngine.popWindow();
+        }
+
         category_animation = fast(category_animation, open ? (float) computeRawElementsH() : 0f, 20f);
+
         if (hovered && GLFW.glfwGetPlatform() != GLFW.GLFW_PLATFORM_WAYLAND)
             GLFW.glfwSetCursor(mc.getWindow().getHandle(),
                     GLFW.glfwCreateStandardCursor(GLFW.GLFW_HAND_CURSOR));
+    }
+
     private float computeRawElementsH() {
         float h = 0;
         for (AbstractElement el : elements)
             if (el.isVisible()) h += (el instanceof SliderElement ? 18 : 13);
         return h;
+    }
+
     @NotNull
     private String formatBind(String s) {
         return switch (s) {
@@ -168,14 +204,20 @@ public class ModuleButton extends AbstractButton {
             case "RIGHT_ALT"     -> "RAlt";
             default              -> s;
         };
+    }
+
     public void mouseClicked(int mx, int my, int btn) {
         if (binding) {
             if (mx > x + 56 && mx < x + 67 && my > y && my < y + height) { holdbind = false; module.getBind().setHold(false); return; }
             if (mx > x + 78 && mx < x + 88 && my > y && my < y + height) { holdbind = true;  module.getBind().setHold(true);  return; }
             module.setBind(btn, true, holdbind);
             binding = false;
+        }
+
+        if (hovered) {
             if (InputUtil.isKeyPressed(mc.getWindow().getHandle(), InputUtil.GLFW_KEY_LEFT_SHIFT) && btn == 0) {
                 module.setDrawn(!module.isDrawn()); return;
+            }
             if (InputUtil.isKeyPressed(mc.getWindow().getHandle(), InputUtil.GLFW_KEY_DELETE) && btn == 0) {
                 DialogScreen dlg = new DialogScreen(TextureStorage.questionPic,
                         isRu() ? "Сброс модуля" : "Reset module",
@@ -190,6 +232,7 @@ public class ModuleButton extends AbstractButton {
                             mc.setScreen(null);
                         }, () -> mc.setScreen(null));
                 mc.setScreen(dlg);
+            }
             if (btn == 0) {
                 if (module.isToggleable()) module.toggle();
             } else if (btn == 1 && module.getSettings().size() > 3) {
@@ -199,25 +242,46 @@ public class ModuleButton extends AbstractButton {
             } else if (btn == 2) {
                 animation2 = 0;
                 binding = !binding;
+            }
+        }
+
         if (open) elements.forEach(el -> { if (el.isVisible()) el.mouseClicked(mx, my, btn); });
+    }
+
     public void mouseReleased(int mx, int my, int btn) {
         if (isOpen()) elements.forEach(el -> el.mouseReleased(mx, my, btn));
+    }
+
     public void charTyped(char key, int keyCode) {
         if (isOpen()) elements.forEach(el -> el.charTyped(key, keyCode));
+    }
+
     public void keyTyped(int keyCode) {
         if (isOpen()) elements.forEach(el -> el.keyTyped(keyCode));
+        if (binding) {
             if (keyCode == GLFW.GLFW_KEY_ESCAPE || keyCode == GLFW.GLFW_KEY_DELETE) {
                 module.setBind(-1, false, holdbind);
                 Command.sendMessage((isRu() ? "Удален бинд с модуля " : "Removed bind from ") + module.getName());
             } else {
                 module.setBind(keyCode, false, holdbind);
                 Command.sendMessage(module.getName() + (isRu() ? " бинд изменен на " : " bind changed to ") + module.getBind().getBind());
+            }
+            binding = false;
+        }
+    }
+
     public void onGuiClosed() { elements.forEach(AbstractElement::onClose); }
+
     public List<AbstractElement> getElements() { return elements; }
+
     public double getElementsHeight() { return category_animation; }
+
     public boolean isOpen()           { return open; }
     public void    setOpen(boolean o) { this.open = o; }
+
     public void tick() {
         if (isOpen()) { gearAnimation.tick(); ticksOpened++; }
         else            ticksOpened = 0;
-}
+    }
+    }
+                                
