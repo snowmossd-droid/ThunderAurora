@@ -42,13 +42,6 @@ public class ToggleSwitchRenderer {
 
         float maxW = swX - x - 4;
         FontRenderers.sf_medium_mini.drawString(ctx.getMatrices(), s.getName(), x, y + (H - 7) / 2f, Color.WHITE.getRGB());
-
-        double scale = mc.getWindow().getScaleFactor();
-        double mxD = mc.mouse.getX() / scale, myD = mc.mouse.getY() / scale;
-        if (mxD >= swX && mxD <= swX + SW && myD >= swY && myD <= swY + SH
-                && s.getDescription() != null && !s.getDescription().isEmpty()) {
-            DescriptionRenderQueue.add(s.getDescription(), (float)mxD + 6, (float)myD + 6);
-        }
     }
 
     public boolean mouseClicked(Setting<?> s, double mx, double my, int btn, int x, int y, int width, int height) {
@@ -56,8 +49,10 @@ public class ToggleSwitchRenderer {
         int swX = x + width - SW + 4;
         int swY = y + (H - SH) / 2 - 2;
         if (mx >= swX && mx <= swX + SW && my >= swY && my <= swY + SH) {
-            s.setValue(!((Boolean)s.getValue())); return true;
+            @SuppressWarnings("unchecked")
+            Setting<Boolean> bs = (Setting<Boolean>) s;
+            bs.setValue(!bs.getValue()); return true;
         }
         return false;
     }
-}
+    }
