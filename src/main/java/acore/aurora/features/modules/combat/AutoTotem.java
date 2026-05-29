@@ -306,7 +306,7 @@ public final class AutoTotem extends Module {
                     mc.player.resetLastAttackedTicks();
             }
 
-            if (ncpBypass.getValue()) sendPacket(new PlayerMoveC2SPacket.Full(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.getYaw(), mc.player.getPitch(), mc.player.isOnGround(), mc.player.horizontalCollision));
+            if (ncpBypass.getValue()) sendPacket(new PlayerMoveC2SPacket.Full(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.getYaw(), mc.player.getPitch(), mc.player.isOnGround()));
             if (aacBypass.getValue()) sendPacket(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.STOP_SPRINTING));
 
             delay = (int)(2 + (Managers.SERVER.getPing() / 25f));
