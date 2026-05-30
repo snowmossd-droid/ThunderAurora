@@ -1,6 +1,6 @@
 package acore.aurora.utility.render;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -19,7 +19,7 @@ public class ThemeManager {
         public Style(String name, int... colors) { this.name = name; this.colors = colors; }
     }
 
-    private final List<Style> styles = new CopyOnWriteArrayList<>();
+    private final java.util.List<Style> styles = new CopyOnWriteArrayList<>();
     private Style current;
     private Path file;
 
@@ -67,7 +67,7 @@ public class ThemeManager {
 
     public void setTheme(Style s) { if (styles.contains(s)) current = s; }
     public Style getTheme()       { return current; }
-    public List<Style> getStyles(){ return styles; }
+    public java.util.List<Style> getStyles(){ return styles; }
 
     public int getFirstColor() {
         return current != null && current.colors.length > 0 ? current.colors[0] : 0xFF5433FF;
