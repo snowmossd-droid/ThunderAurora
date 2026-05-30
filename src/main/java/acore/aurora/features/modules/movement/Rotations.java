@@ -1,4 +1,4 @@
-package acore.aurora.features.modules.client;
+package acore.aurora.features.modules.movement;
 
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
