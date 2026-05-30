@@ -1,10 +1,16 @@
 package acore.aurora.utility.render;
 
-import java.awt.*;
-import java.io.*;
+import java.awt.Color;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static acore.aurora.features.modules.Module.mc;
@@ -130,4 +136,5 @@ public class ThemeManager {
             });
         } catch (IOException e) { System.err.println("ThemeManager load failed: " + e.getMessage()); }
     }
-}
+                            }
+        
