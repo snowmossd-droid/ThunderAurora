@@ -16,7 +16,7 @@ import acore.aurora.setting.Setting;
 import acore.aurora.setting.impl.*;
 import acore.aurora.utility.render.Render2DEngine;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.*;
 
 import static acore.aurora.features.modules.Module.mc;
