@@ -22,6 +22,11 @@ public class HudEditor extends Module {
     public static final Setting<Float>     glow1       = new Setting<>("Glow",         0.5f, 0f,  1f);
     public static final Setting<Float>     blurOpacity = new Setting<>("BlurOpacity",  0.55f,0f,  1f);
     public static final Setting<Float>     blurStrength= new Setting<>("BlurStrength", 20f,  5f, 50f);
+    public static final Setting<Float>     colorSpeed  = new Setting<>("ColorSpeed",   5f,   1f, 20f);
+    public static final Setting<acore.aurora.setting.impl.ColorSetting> hcolor1 =
+            new Setting<>("Color1", new acore.aurora.setting.impl.ColorSetting(0xFF5433FF));
+    public static final Setting<acore.aurora.setting.impl.ColorSetting> acolor  =
+            new Setting<>("Color2", new acore.aurora.setting.impl.ColorSetting(0xFF00FFFF));
 
     public static Color getColor(int index) {
         return ThemeManager.INSTANCE.getColor(index);
@@ -58,7 +63,7 @@ public class HudEditor extends Module {
         disable("open");
     }
 
-    public enum HudStyle   { Blurry, Flat }
-    public enum ArrowsStyle { Default, Arrows, Numbers, None }
+    public enum HudStyle   { Blurry, Flat, Glowing }
+    public enum ArrowsStyle { Default, Arrows, Numbers, None, New }
     public enum ColorMode  { Static, Gradient, Rainbow }
-}
+            }
