@@ -14,7 +14,7 @@ import acore.aurora.setting.Setting;
 
 public class Rotations extends Module {
     public Rotations() {
-        super("Rotations", Category.CLIENT);
+        super("Rotations", Category.MOVEMENT);
     }
 
     private final Setting<MoveFix> moveFix = new Setting<>("MoveFix", MoveFix.Off);
