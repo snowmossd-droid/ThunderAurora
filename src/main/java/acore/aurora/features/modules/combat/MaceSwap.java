@@ -142,7 +142,7 @@ public class MaceSwap extends Module {
 
         // 4. Ground spoof nhẹ (OnGroundOnly packet)
         if (groundSpoof.getValue())
-            sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(true, mc.player.horizontalCollision));
+            sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(true));
 
         // 5. Thực hiện swap
         if (slot >= 9) {
@@ -219,5 +219,5 @@ public class MaceSwap extends Module {
     }
 
     public enum Mode { Swap, Auto }
-                                                                }
+    }
     
