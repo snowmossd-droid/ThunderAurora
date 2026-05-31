@@ -133,7 +133,7 @@ public class AdvancedStashFinder extends Module {
         .build();
 
     public AdvancedStashFinder() {
-        super(Category.RENDER, "advanced-stash-finder", "Advanced stash finder with webhook support and auto-disconnect.");
+        super(Categories.RENDER, "advanced-stash-finder", "Advanced stash finder with webhook support and auto-disconnect.");
     }
 
     @Override
