@@ -15,7 +15,7 @@ import meteordevelopment.meteorclient.gui.widgets.pressable.WMinus;
 import meteordevelopment.meteorclient.pathing.PathManagers;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.systems.modules.Categories;
+import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.render.MeteorToast;
 import meteordevelopment.orbit.EventHandler;
@@ -134,7 +134,7 @@ public class AdvancedStashFinder extends Module {
         .build();
 
     public AdvancedStashFinder() {
-        super(Categories.RENDER, "advanced-stash-finder", "Advanced stash finder with webhook support and auto-disconnect.");
+        super(Category.RENDER, "advanced-stash-finder", "Advanced stash finder with webhook support and auto-disconnect.");
     }
 
     @Override
