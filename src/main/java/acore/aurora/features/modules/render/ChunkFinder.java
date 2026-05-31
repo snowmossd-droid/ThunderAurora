@@ -7,7 +7,7 @@ import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.systems.modules.Categories;
+import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.render.MeteorToast;
 import meteordevelopment.orbit.EventHandler;
@@ -297,7 +297,7 @@ public class ChunkFinder extends Module {
     private long lastCleanup = 0;
 
     public ChunkFinder() {
-        super(Categories.RENDER, "chunk-finder", "ChunkFinderV4");
+        super(Category.RENDER, "chunk-finder", "ChunkFinderV4");
     }
 
     @Override
