@@ -1,4 +1,4 @@
-package ru.levin.screens.dropdown;
+package acore.aurora.gui.clickui;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
