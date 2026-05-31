@@ -296,7 +296,7 @@ public class ChunkFinder extends Module {
     private long lastCleanup = 0;
 
     public ChunkFinder() {
-        super(Category.RENDER, "chunk-finder", "ChunkFinderV4");
+        super(Categories.RENDER, "chunk-finder", "ChunkFinderV4");
     }
 
     @Override
