@@ -1,7 +1,7 @@
 package acore.aurora.utility.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
@@ -130,7 +130,7 @@ public class RenderAddon implements IMinecraft {
     private static void drawHeadInternal(MatrixStack matrix, Identifier texture, float x, float y, float size, float rounding, int color) {
         RenderUtil.enableRender();
 
-        RenderSystem.setShader(net.minecraft.client.gl.ShaderProgramKeys.POSITION_TEX_COLOR);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
         RenderSystem.setShaderTexture(0, texture);
 
         float u1 = 8f / 64f; float v1 = 8f / 64f;
@@ -173,4 +173,5 @@ public class RenderAddon implements IMinecraft {
         fakePlayer.headYaw = mc.player.headYaw;
         fakePlayer.bodyYaw = mc.player.bodyYaw;
     }
-}
+    }
+        
