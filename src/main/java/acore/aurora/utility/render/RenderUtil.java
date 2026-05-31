@@ -1,7 +1,7 @@
-import acore.aurora.utility.render.ColorRGBA;
-import net.minecraft.client.render.GameRenderer;
 package acore.aurora.utility.render;
 
+import acore.aurora.utility.render.ColorRGBA;
+import net.minecraft.client.render.GameRenderer;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.mojang.blaze3d.platform.GlStateManager;
