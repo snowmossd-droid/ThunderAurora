@@ -69,7 +69,7 @@ public class ModuleManager implements IManager {
     public static ElytraReplace elytraReplace = new ElytraReplace();
     public static ChorusExploit chorusExploit = new ChorusExploit();
     public static AntiServerAdd antiServerAdd = new AntiServerAdd();
-    public static TunnelBaseFinder tunnelBaseFinder = new TunnelBaseFinder();
+    // public static TunnelBaseFinder tunnelBaseFinder = new TunnelBaseFinder();
     public static ChunkFinder chunkFinder = new ChunkFinder();
     public static AdvancedStashFinder advancedStashFinder = new AdvancedStashFinder();
     public static AutoInvTotem autoInvTotem = new AutoInvTotem();
