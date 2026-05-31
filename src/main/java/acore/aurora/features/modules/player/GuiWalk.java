@@ -7,9 +7,9 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import acore.aurora.events.Event;
-import ru.levin.modules.Function;
-import ru.levin.modules.FunctionAnnotation;
-import ru.levin.modules.Type;
+import acore.aurora.features.modules.Function;
+import acore.aurora.core.manager.client.ModuleManager;
+import acore.aurora.features.modules.Type;
 import ru.levin.modules.setting.ModeSetting;
 import ru.levin.util.player.TimerUtil;
 
