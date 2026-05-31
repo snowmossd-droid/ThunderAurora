@@ -1,8 +1,8 @@
-package ru.levin.manager.themeManager;
+package acore.aurora.core.manager.themeManager;
 
 import net.minecraft.util.math.MathHelper;
-import ru.levin.manager.IMinecraft;
-import ru.levin.modules.player.GuiWalk;
+import acore.aurora.core.manager.IMinecraft;
+import acore.aurora.features.modules.player.GuiWalk;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
