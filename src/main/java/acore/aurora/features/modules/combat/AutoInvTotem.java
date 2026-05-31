@@ -85,7 +85,7 @@ public class AutoInvTotem extends Module {
     private boolean invAutoOpened = false;
 
     public AutoInvTotem() {
-        super(Category.COMBAT, "auto-inv-totem", "Automatically moves totems to offhand when inventory is opened after totem pop.");
+        super(Categories.COMBAT, "auto-inv-totem", "Automatically moves totems to offhand when inventory is opened after totem pop.");
     }
 
     @Override
