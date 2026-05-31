@@ -47,7 +47,6 @@ dependencies {
 
     libImpl("meteordevelopment:orbit:${project.orbit_version}")
 
-    // ⬇️ THÊM DÒNG NÀY - Meteor Client dependency ⬇️
     modImplementation "meteordevelopment:meteor-client:${project.meteor_version}"
     
     modCompileOnly "meteordevelopment:baritone:1.21-SNAPSHOT"
