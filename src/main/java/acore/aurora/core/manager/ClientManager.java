@@ -1,4 +1,4 @@
-package ru.levin.manager;
+package acore.aurora.core.manager;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.BossBarHud;
@@ -16,13 +16,13 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
-import ru.levin.ExosWare;
-import ru.levin.manager.themeManager.StyleManager;
-import ru.levin.mixin.iface.BossBarHudAccessor;
-import ru.levin.mixin.iface.MinecraftClientAccessor;
-import ru.levin.util.KeyMappings;
-import ru.levin.util.color.ColorUtil;
-import ru.levin.util.math.MathUtil;
+import acore.aurora.AcoreAurora.java;
+import acore.aurora.core.manager.themeManager.StyleManager;
+import acore.aurora.injection.iface.BossBarHudAccessor;
+import acore.aurora.injection.iface.MinecraftClientAccessor;
+import acore.aurora.utility.KeyMappings;
+import acore.aurora.utility.color.ColorUtil;
+import acore.aurora.utility.math.MathUtility;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
