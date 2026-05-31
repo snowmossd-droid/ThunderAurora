@@ -1,4 +1,4 @@
-package ru.levin.manager.themeManager;
+package acore.aurora.core.manager.themeManager;
 
 public class Style {
     public final String name;
