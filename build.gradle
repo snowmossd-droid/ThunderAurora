@@ -48,6 +48,8 @@ dependencies {
     libImpl("meteordevelopment:orbit:${project.orbit_version}")
 
     modImplementation "meteordevelopment:meteor-client:${project.meteor_version}"
+
+    modImplementation files("libs/glazed-1.21.10-n-16.1.jar")
     
     modCompileOnly "meteordevelopment:baritone:1.21-SNAPSHOT"
 
