@@ -1,9 +1,11 @@
 package acore.aurora.utility.color;
 
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import acore.aurora.utility.render.ThemeManager;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class ColorUtil {
 
@@ -52,6 +54,25 @@ public class ColorUtil {
         return new Color((g >> 16) & 0xFF, (g >> 8) & 0xFF, g & 0xFF, MathHelper.clamp(alpha, 0, 255)).getRGB();
     }
 
+    public static int gradient(int speed, int index, int c1, int c2) {
+        return ThemeManager.gradient(speed, index, c1, c2);
+    }
+
+    public static int getPixelColor(Identifier textureId, float u, float v) {
+        try {
+            java.net.URL url = ColorUtil.class.getResourceAsStream(
+                "/assets/" + textureId.getNamespace() + "/" + textureId.getPath());
+            if (url == null) return Color.WHITE.getRGB();
+            BufferedImage img = javax.imageio.ImageIO.read(url);
+            if (img == null) return Color.WHITE.getRGB();
+            int px = MathHelper.clamp((int)(u * img.getWidth()), 0, img.getWidth() - 1);
+            int py = MathHelper.clamp((int)(v * img.getHeight()), 0, img.getHeight() - 1);
+            return img.getRGB(px, py);
+        } catch (Exception e) {
+            return Color.WHITE.getRGB();
+        }
+    }
+
     public static int interpolateColor(int c1, int c2, float t) {
         t = Math.max(0, Math.min(1, t));
         int r = (int)(getRed(c1)   * (1 - t) + getRed(c2)   * t);
@@ -60,4 +81,5 @@ public class ColorUtil {
         int a = (int)(getAlpha(c1) * (1 - t) + getAlpha(c2) * t);
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
-}
+                           }
+                
