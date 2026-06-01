@@ -2,7 +2,6 @@ package acore.aurora.utility.render;
 
 
 import java.util.Objects;
-import lombok.Generated;
 import net.minecraft.util.math.MathHelper;
 
 public class ColorRGBA {
@@ -100,23 +99,20 @@ public class ColorRGBA {
         return Objects.hash(new Object[]{this.red, this.green, this.blue, this.alpha});
     }
 
-    @Generated
     public int getRed() {
         return this.red;
     }
 
-    @Generated
     public int getGreen() {
         return this.green;
     }
 
-    @Generated
     public int getBlue() {
         return this.blue;
     }
 
-    @Generated
     public int getAlpha() {
         return this.alpha;
     }
-}
+    }
+                                         
