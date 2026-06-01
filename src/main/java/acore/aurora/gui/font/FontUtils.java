@@ -53,12 +53,19 @@ public class FontUtils {
     private void initializationFont(RenderFonts[] fontArray, String fontName) {
         if (fontArray == null) return;
         try {
-            Font font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(FontUtils.class.getResourceAsStream(fontsDir + fontName)));
+            var stream = FontUtils.class.getResourceAsStream(fontsDir + fontName);
+            if (stream == null) {
+                System.err.println("[FontUtils] Font not found: " + fontsDir + fontName);
+                return;
+            }
+            Font font = Font.createFont(Font.TRUETYPE_FONT, stream);
             for (int i = 1; i < fontArray.length; i++) {
                 fontArray[i] = new RenderFonts(font, i);
             }
         } catch (Exception e) {
+            System.err.println("[FontUtils] Failed to load font: " + fontName + " - " + e.getMessage());
             e.printStackTrace();
         }
     }
-}
+    }
+                
