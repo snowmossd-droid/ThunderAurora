@@ -26,6 +26,15 @@ public class ColorUtil {
         return (rgb & 0x00FFFFFF) | (ai << 24);
     }
 
+    public static float[] rgba(int color) {
+        return new float[]{
+            ((color >> 16) & 0xFF) / 255f,
+            ((color >> 8)  & 0xFF) / 255f,
+            (color         & 0xFF) / 255f,
+            ((color >> 24) & 0xFF) / 255f
+        };
+    }
+
     public static int rgba(int r, int g, int b, int a) {
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
@@ -60,10 +69,10 @@ public class ColorUtil {
 
     public static int getPixelColor(Identifier textureId, float u, float v) {
         try {
-            java.net.URL url = ColorUtil.class.getResourceAsStream(
+            java.io.InputStream stream = ColorUtil.class.getResourceAsStream(
                 "/assets/" + textureId.getNamespace() + "/" + textureId.getPath());
-            if (url == null) return Color.WHITE.getRGB();
-            BufferedImage img = javax.imageio.ImageIO.read(url);
+            if (stream == null) return Color.WHITE.getRGB();
+            BufferedImage img = javax.imageio.ImageIO.read(stream);
             if (img == null) return Color.WHITE.getRGB();
             int px = MathHelper.clamp((int)(u * img.getWidth()), 0, img.getWidth() - 1);
             int py = MathHelper.clamp((int)(v * img.getHeight()), 0, img.getHeight() - 1);
@@ -81,5 +90,5 @@ public class ColorUtil {
         int a = (int)(getAlpha(c1) * (1 - t) + getAlpha(c2) * t);
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
-                           }
-                
+             }
+        
