@@ -1,6 +1,5 @@
 package acore.aurora.utility.render.providers;
 
-import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.util.Identifier;
 
 public class ResourceProvider {
@@ -20,13 +19,3 @@ public class ResourceProvider {
         return Identifier.of("acoreaurora", "core/glass/" + name + ".json");
     }
 }
-
-    public static Identifier getShaderIdentifier(String name) {
-        return Identifier.of("acoreaurora", "core/shaders/" + name + ".json");
-    }
-
-    public static Identifier getGlass(String name) {
-        return Identifier.of("acoreaurora", "core/glass/" + name + ".json");
-    }
-        }
-        
