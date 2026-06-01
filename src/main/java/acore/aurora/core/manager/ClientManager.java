@@ -37,13 +37,13 @@ public class ClientManager implements IMinecraft {
     public static float TICK_TIMER = 1f;
 
     public static float getTPS() {
-        return Math.round(Manager.SYNC_MANAGER.tps * 10) / 10F;
+        return 20f;
     }
 
     public static int getFps() {
         final MinecraftClient client = mc;
         final int currentFps = (client != null) ? client.getCurrentFps() : 0;
-        fps = MathUtil.fast(fps, currentFps, 6);
+        fps = acore.aurora.utility.math.MathUtil.fast(fps, currentFps, 6);
         return Math.round(fps);
     }
     public static String getBps(Entity entity) {
@@ -147,12 +147,12 @@ public class ClientManager implements IMinecraft {
 
     private static Text applyGradient(String string, int startColor, int endColor) {
         MutableText component = Text.empty();
-        final String name = ExosWare.getInstance().name;
+        final String name = "ThunderAurora";
         final int length = name.length();
         final float inv = (length <= 1) ? 0f : 1f / (length - 1);
 
         for (int i = 0; i < length; i++) {
-            int rgb = ColorUtil.blendColors(startColor, endColor, (length == 1) ? 0.5f : (i * inv)) & 0xFFFFFF;
+            int rgb = ColorUtil.interpolateColor(startColor, endColor, (length == 1) ? 0.5f : (i * inv)) & 0xFFFFFF;
             component.append(Text.literal(String.valueOf(name.charAt(i))).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(rgb)).withBold(true)));
         }
 
@@ -162,4 +162,5 @@ public class ClientManager implements IMinecraft {
 
         return component;
     }
-}
+            }
+            
