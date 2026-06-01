@@ -6,6 +6,12 @@ import java.util.Objects;
 @SuppressWarnings("All")
 public class FontUtils {
 
+    public static final FontUtils INSTANCE = new FontUtils();
+
+    static {
+        INSTANCE.init();
+    }
+
     public final String fontsDir = "/assets/acoreaurora/fonts/";
 
     public volatile RenderFonts[] comfortaa = new RenderFonts[256];
