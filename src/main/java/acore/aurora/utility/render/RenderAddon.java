@@ -110,7 +110,7 @@ public class RenderAddon implements IMinecraft {
         }
 
         if (texture == null) {
-            EntityRenderer<?, ?> baseRenderer = mc.getEntityRenderDispatcher().getRenderer(living);
+            EntityRenderer<?> baseRenderer = mc.getEntityRenderDispatcher().getRenderer(living);
             if (baseRenderer instanceof LivingEntityRenderer<?, ?>) {
                 // MC 1.21: getTexture via cast workaround
                 try {
@@ -173,5 +173,5 @@ public class RenderAddon implements IMinecraft {
         fakePlayer.headYaw = mc.player.headYaw;
         fakePlayer.bodyYaw = mc.player.bodyYaw;
     }
-                             }
-                
+    }
+            
