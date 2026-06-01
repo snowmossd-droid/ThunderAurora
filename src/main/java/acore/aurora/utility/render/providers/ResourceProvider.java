@@ -1,16 +1,16 @@
 package acore.aurora.utility.render.providers;
 
 import net.minecraft.client.gl.ShaderProgram;
-import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 
 public class ResourceProvider {
-    public static final RegistryKey<ShaderProgram> TEXTURE_SHADER_KEY = ShaderProgramKeys.POSITION_TEX_COLOR;
-    public static final RegistryKey<ShaderProgram> RECTANGLE_SHADER_KEY = ShaderProgramKeys.POSITION_COLOR;
-    public static final RegistryKey<ShaderProgram> BLUR_SHADER_KEY = ShaderProgramKeys.POSITION_COLOR;
-    public static final RegistryKey<ShaderProgram> RECTANGLE_BORDER_SHADER_KEY = ShaderProgramKeys.POSITION_COLOR;
-    public static final RegistryKey<ShaderProgram> GLASS_SHADER_KEY = ShaderProgramKeys.POSITION_TEX_COLOR;
+    public static final RegistryKey<ShaderProgram> TEXTURE_SHADER_KEY = RegistryKey.of(RegistryKeys.SHADER_PROGRAM, Identifier.ofVanilla("position_tex_color"));
+    public static final RegistryKey<ShaderProgram> RECTANGLE_SHADER_KEY = RegistryKey.of(RegistryKeys.SHADER_PROGRAM, Identifier.ofVanilla("position_color"));
+    public static final RegistryKey<ShaderProgram> BLUR_SHADER_KEY = RegistryKey.of(RegistryKeys.SHADER_PROGRAM, Identifier.ofVanilla("position_color"));
+    public static final RegistryKey<ShaderProgram> RECTANGLE_BORDER_SHADER_KEY = RegistryKey.of(RegistryKeys.SHADER_PROGRAM, Identifier.ofVanilla("position_color"));
+    public static final RegistryKey<ShaderProgram> GLASS_SHADER_KEY = RegistryKey.of(RegistryKeys.SHADER_PROGRAM, Identifier.ofVanilla("position_tex_color"));
 
     public static Identifier getShaderIdentifier(String name) {
         return Identifier.of("acoreaurora", "core/shaders/" + name + ".json");
