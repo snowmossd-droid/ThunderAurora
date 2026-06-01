@@ -7,6 +7,7 @@ import acore.aurora.gui.clickui.setting.*;
 import acore.aurora.events.Event;
 import acore.aurora.core.manager.IMinecraft;
 import acore.aurora.core.manager.IManager;
+import acore.aurora.core.manager.Manager;
 import acore.aurora.core.manager.client.NotificationType;
 import acore.aurora.utility.player.AudioUtil;
 
@@ -195,4 +196,5 @@ public abstract class Function implements IMinecraft {
         }
     }
     }
-      
+
+    
