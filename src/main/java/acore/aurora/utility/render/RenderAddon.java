@@ -64,7 +64,7 @@ public class RenderAddon implements IMinecraft {
         drawContext.getMatrices().scale(size, size, 1);
         drawContext.drawItem(item, 0, 0);
         if (stackOverlay) {
-            drawContext.drawStackOverlay(mc.textRenderer, item, 0, 0);
+            drawContext.drawItemInSlot(mc.textRenderer, item, 0, 0);
         }
         drawContext.getMatrices().pop();
     }
@@ -83,7 +83,7 @@ public class RenderAddon implements IMinecraft {
             e.getMatrices().scale(scale, scale, 1.0f);
             e.drawItem(stack, 0, 0, 7, 0);
 
-            e.drawStackOverlay(mc.textRenderer, stack, 0, 0);
+            e.drawItemInSlot(mc.textRenderer, stack, 0, 0);
 
             e.getMatrices().pop();
 
@@ -110,8 +110,8 @@ public class RenderAddon implements IMinecraft {
         }
 
         if (texture == null) {
-            EntityRenderer<? super LivingEntity, ?> baseRenderer = mc.getEntityRenderDispatcher().getRenderer(living);
-            if (baseRenderer instanceof LivingEntityRenderer<?, ?, ?>) {
+            EntityRenderer<?, ?> baseRenderer = mc.getEntityRenderDispatcher().getRenderer(living);
+            if (baseRenderer instanceof LivingEntityRenderer<?, ?>) {
                 // MC 1.21: getTexture via cast workaround
                 try {
                     var method = baseRenderer.getClass().getMethod("getTexture", net.minecraft.entity.LivingEntity.class);
@@ -130,7 +130,7 @@ public class RenderAddon implements IMinecraft {
     private static void drawHeadInternal(MatrixStack matrix, Identifier texture, float x, float y, float size, float rounding, int color) {
         RenderUtil.enableRender();
 
-        RenderSystem.setShader(net.minecraft.client.gl.ShaderProgramKeys.POSITION_TEX_COLOR);
+        RenderSystem.setShader(net.minecraft.client.render.GameRenderer::getPositionTexColorProgram);
         RenderSystem.setShaderTexture(0, texture);
 
         float u1 = 8f / 64f; float v1 = 8f / 64f;
@@ -173,4 +173,5 @@ public class RenderAddon implements IMinecraft {
         fakePlayer.headYaw = mc.player.headYaw;
         fakePlayer.bodyYaw = mc.player.bodyYaw;
     }
-}
+                             }
+                
