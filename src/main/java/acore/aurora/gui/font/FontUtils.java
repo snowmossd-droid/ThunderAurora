@@ -54,18 +54,21 @@ public class FontUtils {
         if (fontArray == null) return;
         try {
             var stream = FontUtils.class.getResourceAsStream(fontsDir + fontName);
+            Font font;
             if (stream == null) {
-                System.err.println("[FontUtils] Font not found: " + fontsDir + fontName);
-                return;
+                font = new Font("SansSerif", Font.PLAIN, 1);
+            } else {
+                font = Font.createFont(Font.TRUETYPE_FONT, stream);
             }
-            Font font = Font.createFont(Font.TRUETYPE_FONT, stream);
             for (int i = 1; i < fontArray.length; i++) {
                 fontArray[i] = new RenderFonts(font, i);
             }
         } catch (Exception e) {
-            System.err.println("[FontUtils] Failed to load font: " + fontName + " - " + e.getMessage());
-            e.printStackTrace();
+            Font fallback = new Font("SansSerif", Font.PLAIN, 1);
+            for (int i = 1; i < fontArray.length; i++) {
+                fontArray[i] = new RenderFonts(fallback, i);
+            }
         }
     }
     }
-                
+
