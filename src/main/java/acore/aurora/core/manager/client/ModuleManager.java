@@ -21,7 +21,6 @@ import acore.aurora.features.modules.movement.*;
 import acore.aurora.features.modules.player.*;
 import acore.aurora.features.modules.render.Particles;
 import acore.aurora.features.modules.render.*;
-import acore.aurora.features.modules.render.Wings;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -97,6 +96,7 @@ public class ModuleManager implements IManager {
     public static Speedometer speedometer = new Speedometer();
     public static ReverseStep reverseStep = new ReverseStep();
     public static NoJumpDelay noJumpDelay = new NoJumpDelay();
+    public static Wings wings = new Wings();
     public static NameProtect nameProtect = new NameProtect();
     public static MiddleClick middleClick = new MiddleClick();
     public static LogoutSpots logoutSpots = new LogoutSpots();
