@@ -119,6 +119,8 @@ public class ThunderGui extends Screen {
         int startX = (width - totalW) / 2;
         int startY = (height - PANEL_HEIGHT) / 2;
         main_posY = startY;
+
+        for (Module.Category cat : categories) {
             float t = scrollTargets.get(cat);
             float o = scrollOffsets.get(cat);
             scrollOffsets.put(cat, o + (t - o) * 0.2f);
@@ -364,4 +366,3 @@ public class ThunderGui extends Screen {
         return super.charTyped(chr, modifiers);
     }
     }
-                        
