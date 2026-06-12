@@ -86,8 +86,6 @@ public class Wings extends Module {
         RenderSystem.disableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
-        BufferBuilder buf = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLE_FAN, VertexFormats.POSITION_COLOR);
-
         stack.push();
         stack.translate(x, y, z);
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-yaw));
@@ -98,12 +96,18 @@ public class Wings extends Module {
         int cb = col.getBlue();
 
         int steps = 24;
-        buf.vertex(mat, 0f, 0f, 0f).color(new Color(cr, cg, cb, 60).getRGB());
+        float[] perimX = new float[steps + 1];
+        float[] perimY = new float[steps + 1];
         for (int i = 0; i <= steps; i++) {
             float angle = (float) (i * Math.PI * 2 / steps);
-            float gx = (float) Math.cos(angle) * glowR;
-            float gy = (float) Math.sin(angle) * glowR * 0.45f;
-            buf.vertex(mat, gx, gy, 0f).color(new Color(cr, cg, cb, 0).getRGB());
+            perimX[i] = (float) Math.cos(angle) * glowR;
+            perimY[i] = (float) Math.sin(angle) * glowR * 0.45f;
+        }
+        BufferBuilder buf = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_COLOR);
+        for (int i = 0; i < steps; i++) {
+            buf.vertex(mat, 0f, 0f, 0f).color(new Color(cr, cg, cb, 60).getRGB());
+            buf.vertex(mat, perimX[i], perimY[i], 0f).color(new Color(cr, cg, cb, 0).getRGB());
+            buf.vertex(mat, perimX[i + 1], perimY[i + 1], 0f).color(new Color(cr, cg, cb, 0).getRGB());
         }
 
         Render2DEngine.endBuilding(buf);
@@ -140,8 +144,6 @@ public class Wings extends Module {
         RenderSystem.disableCull();
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
-        BufferBuilder buf = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLE_FAN, VertexFormats.POSITION_COLOR);
-
         stack.push();
         stack.translate(x, y, z);
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-yaw));
@@ -155,14 +157,19 @@ public class Wings extends Module {
 
         float cx2 = w * 0.45f;
         float cy2 = -h * 0.4f;
-        buf.vertex(mat, cx2, cy2, 0f).color(new Color(cr, cg, cb, ca).getRGB());
+        int centerColor = new Color(cr, cg, cb, ca).getRGB();
 
-        for (float[] pt : pts) {
-            float tx = pt[0];
-            float ty = pt[1];
-            float tFactor = (float) Math.sqrt(tx * tx + ty * ty) / (float) Math.sqrt(w * w + h * h);
-            int edgeAlpha = (int) (ca * (0.5f + 0.5f * (1f - tFactor)));
-            buf.vertex(mat, tx, ty, 0f).color(new Color(cr, cg, cb, edgeAlpha).getRGB());
+        BufferBuilder buf = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_COLOR);
+        for (int i = 0; i < pts.length - 1; i++) {
+            float tx0 = pts[i][0], ty0 = pts[i][1];
+            float tx1 = pts[i + 1][0], ty1 = pts[i + 1][1];
+            float f0 = (float) Math.sqrt(tx0 * tx0 + ty0 * ty0) / (float) Math.sqrt(w * w + h * h);
+            float f1 = (float) Math.sqrt(tx1 * tx1 + ty1 * ty1) / (float) Math.sqrt(w * w + h * h);
+            int a0 = (int) (ca * (0.5f + 0.5f * (1f - f0)));
+            int a1 = (int) (ca * (0.5f + 0.5f * (1f - f1)));
+            buf.vertex(mat, cx2, cy2, 0f).color(centerColor);
+            buf.vertex(mat, tx0, ty0, 0f).color(new Color(cr, cg, cb, a0).getRGB());
+            buf.vertex(mat, tx1, ty1, 0f).color(new Color(cr, cg, cb, a1).getRGB());
         }
 
         Render2DEngine.endBuilding(buf);
@@ -201,4 +208,5 @@ public class Wings extends Module {
 
         RenderSystem.lineWidth(1f);
     }
-}
+    }
+                                       
