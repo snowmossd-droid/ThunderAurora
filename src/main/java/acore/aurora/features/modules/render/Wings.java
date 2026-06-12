@@ -19,14 +19,16 @@ public class Wings extends Module {
         super("Wings", Category.RENDER);
     }
 
-    private final Setting<Float> size = new Setting<>("Size", 0.7f, 0.2f, 2.0f);
-    private final Setting<Float> spread = new Setting<>("Spread", 1.1f, 0.5f, 2.5f);
-    private final Setting<Float> offsetY = new Setting<>("OffsetY", 0.0f, -1.0f, 1.0f);
+    private final Setting<Float> size = new Setting<>("Size", 1.0f, 0.5f, 2.5f);
+    private final Setting<Float> spread = new Setting<>("Spread", 1.0f, 0.5f, 2.0f);
+    private final Setting<Float> offsetY = new Setting<>("OffsetY", 0.3f, -0.5f, 1.0f);
+    private final Setting<Float> offsetZ = new Setting<>("OffsetZ", -0.15f, -0.5f, 0.5f);
     private final Setting<Boolean> animated = new Setting<>("Animated", true);
-    private final Setting<Float> flapSpeed = new Setting<>("FlapSpeed", 1.0f, 0.2f, 4.0f);
+    private final Setting<Float> flapSpeed = new Setting<>("FlapSpeed", 1.2f, 0.2f, 3.0f);
     private final Setting<Boolean> glow = new Setting<>("Glow", true);
     private final Setting<Float> alpha = new Setting<>("Alpha", 0.85f, 0.1f, 1.0f);
-    private final Setting<Boolean> onlySelf = new Setting<>("OnlySelf", false);
+    private final Setting<Boolean> hideSelf = new Setting<>("HideSelf", false);
+    private final Setting<Boolean> showOthers = new Setting<>("ShowOthers", true);
 
     private float flapAngle = 0f;
 
@@ -35,7 +37,10 @@ public class Wings extends Module {
         if (fullNullCheck()) return;
 
         for (PlayerEntity entity : mc.world.getPlayers()) {
-            if (entity == mc.player && onlySelf.getValue()) continue;
+            boolean isSelf = entity == mc.player;
+
+            if (isSelf && hideSelf.getValue()) continue;
+            if (!isSelf && !showOthers.getValue()) continue;
 
             double camX = mc.getEntityRenderDispatcher().camera.getPos().getX();
             double camY = mc.getEntityRenderDispatcher().camera.getPos().getY();
@@ -47,10 +52,10 @@ public class Wings extends Module {
             double z = entity.prevZ + (entity.getZ() - entity.prevZ) * tickDelta - camZ;
 
             float bodyYaw = entity.prevBodyYaw + (entity.bodyYaw - entity.prevBodyYaw) * tickDelta;
-
             float wingY = (float) y + entity.getHeight() * 0.55f + offsetY.getValue();
+            float wingZ = (float) z + offsetZ.getValue();
 
-            float flap = animated.getValue() ? (float) Math.sin(flapAngle) * 0.3f : 0f;
+            float flap = animated.getValue() ? (float) Math.sin(flapAngle) * 0.4f : 0f;
 
             int themeColor1 = ThemeManager.INSTANCE.getFirstColor();
             int themeColor2 = ThemeManager.INSTANCE.getSecondColor();
@@ -63,23 +68,23 @@ public class Wings extends Module {
                 Math.max(0, Math.min(255, (int)(alpha.getValue() * 255)))
             );
 
-            if (glow.getValue()) {
-                renderGlow(stack, (float) x, wingY, (float) z, bodyYaw, col);
+            if (glow.getValue() && isSelf) {
+                renderGlow(stack, (float) x, wingY, wingZ, bodyYaw, col);
             }
 
-            renderWing(stack, (float) x, wingY, (float) z, bodyYaw, flap, false, col);
-            renderWing(stack, (float) x, wingY, (float) z, bodyYaw, flap, true, col);
+            renderWing(stack, (float) x, wingY, wingZ, bodyYaw, flap, false, col);
+            renderWing(stack, (float) x, wingY, wingZ, bodyYaw, flap, true, col);
         }
 
         if (animated.getValue()) {
-            flapAngle += 0.06f * flapSpeed.getValue();
+            flapAngle += 0.05f * flapSpeed.getValue();
         }
     }
 
     private void renderGlow(MatrixStack stack, float x, float y, float z, float yaw, Color col) {
         float s = size.getValue();
         float sp = spread.getValue();
-        float glowR = s * 1.8f * sp;
+        float glowR = s * 2.2f * sp;
 
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
@@ -95,17 +100,17 @@ public class Wings extends Module {
         int cg = col.getGreen();
         int cb = col.getBlue();
 
-        int steps = 24;
+        int steps = 20;
         float[] perimX = new float[steps + 1];
         float[] perimY = new float[steps + 1];
         for (int i = 0; i <= steps; i++) {
             float angle = (float) (i * Math.PI * 2 / steps);
             perimX[i] = (float) Math.cos(angle) * glowR;
-            perimY[i] = (float) Math.sin(angle) * glowR * 0.45f;
+            perimY[i] = (float) Math.sin(angle) * glowR * 0.4f;
         }
         BufferBuilder buf = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_COLOR);
         for (int i = 0; i < steps; i++) {
-            buf.vertex(mat, 0f, 0f, 0f).color(new Color(cr, cg, cb, 60).getRGB());
+            buf.vertex(mat, 0f, 0f, 0f).color(new Color(cr, cg, cb, 40).getRGB());
             buf.vertex(mat, perimX[i], perimY[i], 0f).color(new Color(cr, cg, cb, 0).getRGB());
             buf.vertex(mat, perimX[i + 1], perimY[i + 1], 0f).color(new Color(cr, cg, cb, 0).getRGB());
         }
@@ -122,19 +127,21 @@ public class Wings extends Module {
         float sp = spread.getValue();
         float side = right ? 1f : -1f;
 
-        float w = s * 1.5f * sp;
-        float h = s * 1.2f;
+        float w = s * 1.6f * sp;
+        float h = s * 1.4f;
 
+        // Wing points - xòe ngang ra như thật
         float[][] pts = {
             {0f, 0f},
-            {w * 0.18f, -h * 0.15f - flap * h * 0.2f},
-            {w * 0.45f, -h * 0.55f - flap * h * 0.4f},
-            {w * 0.72f, -h * 0.75f - flap * h * 0.5f},
-            {w * 0.95f, -h * 0.60f - flap * h * 0.4f},
-            {w * 1.00f, -h * 0.30f - flap * h * 0.2f},
-            {w * 0.85f, -h * 0.05f + flap * h * 0.1f},
-            {w * 0.55f,  h * 0.12f + flap * h * 0.1f},
-            {w * 0.25f,  h * 0.08f},
+            {w * 0.2f, -h * 0.05f + flap * h * 0.15f},
+            {w * 0.45f, -h * 0.15f + flap * h * 0.2f},
+            {w * 0.70f, -h * 0.2f + flap * h * 0.25f},
+            {w * 0.90f, -h * 0.15f + flap * h * 0.15f},
+            {w * 1.00f, -h * 0.05f + flap * h * 0.1f},
+            {w * 0.95f, h * 0.05f},
+            {w * 0.70f, h * 0.1f - flap * h * 0.05f},
+            {w * 0.40f, h * 0.08f - flap * h * 0.05f},
+            {w * 0.15f, h * 0.03f},
             {0f, 0f}
         };
 
@@ -155,8 +162,8 @@ public class Wings extends Module {
         int cb = col.getBlue();
         int ca = col.getAlpha();
 
-        float cx2 = w * 0.45f;
-        float cy2 = -h * 0.4f;
+        float cx2 = w * 0.5f;
+        float cy2 = 0f;
         int centerColor = new Color(cr, cg, cb, ca).getRGB();
 
         BufferBuilder buf = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_COLOR);
@@ -175,38 +182,7 @@ public class Wings extends Module {
         Render2DEngine.endBuilding(buf);
         stack.pop();
 
-        renderWingEdge(stack, x, y, z, yaw, side, pts, col);
-
         RenderSystem.enableCull();
         RenderSystem.enableDepthTest();
-        RenderSystem.disableBlend();
-    }
-
-    private void renderWingEdge(MatrixStack stack, float x, float y, float z, float yaw, float side, float[][] pts, Color col) {
-        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
-        RenderSystem.lineWidth(1.2f);
-
-        BufferBuilder buf = Tessellator.getInstance().begin(VertexFormat.DrawMode.DEBUG_LINE_STRIP, VertexFormats.POSITION_COLOR);
-
-        stack.push();
-        stack.translate(x, y, z);
-        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-yaw));
-        stack.scale(side, 1f, 1f);
-        Matrix4f mat = stack.peek().getPositionMatrix();
-
-        int cr = Math.min(255, col.getRed() + 80);
-        int cg = Math.min(255, col.getGreen() + 80);
-        int cb = Math.min(255, col.getBlue() + 80);
-        int ca = (int) (col.getAlpha() * 0.7f);
-
-        for (float[] pt : pts) {
-            buf.vertex(mat, pt[0], pt[1], 0f).color(new Color(cr, cg, cb, ca).getRGB());
-        }
-
-        Render2DEngine.endBuilding(buf);
-        stack.pop();
-
-        RenderSystem.lineWidth(1f);
     }
     }
-                                       
