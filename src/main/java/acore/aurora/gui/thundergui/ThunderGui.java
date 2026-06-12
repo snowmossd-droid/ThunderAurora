@@ -14,7 +14,8 @@ import acore.aurora.setting.Setting;
 import acore.aurora.utility.render.Render2DEngine;
 import acore.aurora.utility.render.animation.EaseOutBack;
 
-import java.awt.*;
+import acore.aurora.gui.thundergui.components.ModulePlate;
+import java.awt.Color;
 import java.util.*;
 
 import static acore.aurora.features.modules.Module.mc;
@@ -24,6 +25,15 @@ public class ThunderGui extends Screen {
     private static ThunderGui INSTANCE;
     public static EaseOutBack open_animation = new EaseOutBack(5);
     public static boolean open_direction = false;
+
+    public float main_posY = 0;
+    public Module.Category current_category = null;
+    public Module.Category new_category = null;
+    public static ModulePlate selected_plate = null;
+    public static boolean scroll_lock = false;
+
+    public void loadConfigs() {}
+    public void loadFriends() {}
 
     static { INSTANCE = new ThunderGui(); }
 
@@ -108,8 +118,7 @@ public class ThunderGui extends Screen {
         int totalW = categories.size() * (PANEL_WIDTH + PANEL_GAP) - PANEL_GAP;
         int startX = (width - totalW) / 2;
         int startY = (height - PANEL_HEIGHT) / 2;
-
-        for (Module.Category cat : categories) {
+        main_posY = startY;
             float t = scrollTargets.get(cat);
             float o = scrollOffsets.get(cat);
             scrollOffsets.put(cat, o + (t - o) * 0.2f);
@@ -129,8 +138,8 @@ public class ThunderGui extends Screen {
     private void renderPanel(DrawContext ctx, int x, int y, Module.Category cat, int mouseX, int mouseY) {
         Render2DEngine.drawRound(ctx.getMatrices(), x, y, PANEL_WIDTH, PANEL_HEIGHT, 12f, C_PANEL);
 
-        String title = cat.name();
-        int tw = FontRenderers.sf_medium.getStringWidth(title);
+        String title = cat.getName();
+        int tw = (int) FontRenderers.sf_medium.getStringWidth(title);
         FontRenderers.sf_medium.drawString(ctx.getMatrices(), title, x + (PANEL_WIDTH - tw) / 2, y + 5, -1);
 
         float offset = scrollOffsets.get(cat);
@@ -186,7 +195,7 @@ public class ThunderGui extends Screen {
         if (searchText.isEmpty() && !searchFocused) {
             display = "Поиск...";
             textColor = new Color(255, 255, 255, 120).getRGB();
-            int dw = FontRenderers.sf_medium.getStringWidth(display);
+            int dw = (int) FontRenderers.sf_medium.getStringWidth(display);
             tx = sx + (sw - dw) / 2;
         } else {
             String t = searchText;
@@ -216,7 +225,7 @@ public class ThunderGui extends Screen {
                 new Color(17, 15, 28, (int)(235 * themeAnim)));
 
         float cx = tx + pad;
-        for (Module module : Managers.MODULE.getModules()) {
+        for (Module module : Managers.MODULE.modules) {
             if (!(module instanceof acore.aurora.features.modules.client.AcoreAuroraGui)) continue;
         }
 
@@ -228,7 +237,7 @@ public class ThunderGui extends Screen {
     private void renderTitle(DrawContext ctx, int startX, int startY, int totalW) {
         String title = "exosware";
         String ver = "v" + AcoreAurora.VERSION;
-        int tx = startX + totalW / 2 - FontRenderers.sf_bold.getStringWidth(title) / 2;
+        int tx = startX + totalW / 2 - (int) FontRenderers.sf_bold.getStringWidth(title) / 2;
         int ty = startY - 22;
         FontRenderers.sf_bold.drawString(ctx.getMatrices(), title, tx, ty, AcoreAuroraGui.onColor1.getValue().getColorObject().getRGB());
         FontRenderers.settings.drawString(ctx.getMatrices(), ver, tx + FontRenderers.sf_bold.getStringWidth(title) + 4, ty + 4, new Color(0x656565).getRGB());
@@ -354,4 +363,5 @@ public class ThunderGui extends Screen {
         }
         return super.charTyped(chr, modifiers);
     }
-}
+    }
+                        
