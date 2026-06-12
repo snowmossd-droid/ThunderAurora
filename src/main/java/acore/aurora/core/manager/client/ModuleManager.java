@@ -96,7 +96,6 @@ public class ModuleManager implements IManager {
     public static Speedometer speedometer = new Speedometer();
     public static ReverseStep reverseStep = new ReverseStep();
     public static NoJumpDelay noJumpDelay = new NoJumpDelay();
-    public static Wings wings = new Wings();
     public static NameProtect nameProtect = new NameProtect();
     public static MiddleClick middleClick = new MiddleClick();
     public static LogoutSpots logoutSpots = new LogoutSpots();
