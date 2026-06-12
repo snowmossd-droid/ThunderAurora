@@ -6,7 +6,7 @@ import net.minecraft.client.option.GraphicsMode;
 import net.minecraft.client.option.ParticlesMode;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.entity.passive.AmbientEntity;
+import net.minecraft.entity.passive.BatEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import acore.aurora.events.impl.EventTick;
 import acore.aurora.features.modules.Module;
@@ -65,7 +65,6 @@ public class Optimizer extends Module {
             mc.options.getGraphicsMode().setValue(GraphicsMode.FANCY);
             mc.options.getCloudRenderMode().setValue(CloudRenderMode.FANCY);
             mc.options.getEntityShadows().setValue(true);
-            mc.options.getSmoothLighting().setValue(true);
             mc.options.getEnableVsync().setValue(true);
         }
         if (mc.world != null) {
@@ -90,7 +89,6 @@ public class Optimizer extends Module {
             mc.options.getCloudRenderMode().setValue(CloudRenderMode.OFF);
             mc.options.getGraphicsMode().setValue(GraphicsMode.FAST);
             mc.options.getEntityShadows().setValue(false);
-            mc.options.getSmoothLighting().setValue(false);
             mc.options.getBiomeBlendRadius().setValue(0);
         }
 
@@ -114,7 +112,6 @@ public class Optimizer extends Module {
 
         if (reduceDist.getValue()) {
             mc.options.getViewDistance().setValue(renderDist.getValue());
-            mc.options.getEntityViewDistance().setValue(entityDist.getValue());
         }
 
         if (entityCulling.getValue() && mc.world != null && mc.player != null) {
@@ -127,7 +124,7 @@ public class Optimizer extends Module {
                 if (d > distSq && !entity.isPlayer()) hide = true;
                 if (hideAnimals.getValue() && entity instanceof AnimalEntity) hide = true;
                 if (hideArmorStand.getValue() && entity instanceof ArmorStandEntity) hide = true;
-                if (hideAmbient.getValue() && entity instanceof AmbientEntity) hide = true;
+                if (hideAmbient.getValue() && entity instanceof BatEntity) hide = true;
 
                 entity.setInvisible(hide);
             }
@@ -143,4 +140,5 @@ public class Optimizer extends Module {
             }
         }
     }
-}
+    }
+            
