@@ -1,0 +1,204 @@
+package acore.aurora.features.modules.render;
+
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.render.*;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.RotationAxis;
+import org.joml.Matrix4f;
+import acore.aurora.features.modules.Module;
+import acore.aurora.setting.Setting;
+import acore.aurora.utility.render.Render2DEngine;
+import acore.aurora.utility.render.ThemeManager;
+
+import java.awt.*;
+
+public class Wings extends Module {
+    public Wings() {
+        super("Wings", Category.RENDER);
+    }
+
+    private final Setting<Float> size = new Setting<>("Size", 0.7f, 0.2f, 2.0f);
+    private final Setting<Float> spread = new Setting<>("Spread", 1.1f, 0.5f, 2.5f);
+    private final Setting<Float> offsetY = new Setting<>("OffsetY", 0.0f, -1.0f, 1.0f);
+    private final Setting<Boolean> animated = new Setting<>("Animated", true);
+    private final Setting<Float> flapSpeed = new Setting<>("FlapSpeed", 1.0f, 0.2f, 4.0f);
+    private final Setting<Boolean> glow = new Setting<>("Glow", true);
+    private final Setting<Float> alpha = new Setting<>("Alpha", 0.85f, 0.1f, 1.0f);
+    private final Setting<Boolean> onlySelf = new Setting<>("OnlySelf", false);
+
+    private float flapAngle = 0f;
+
+    @Override
+    public void onRender3D(MatrixStack stack) {
+        if (fullNullCheck()) return;
+
+        for (PlayerEntity entity : mc.world.getPlayers()) {
+            if (entity == mc.player && onlySelf.getValue()) continue;
+
+            double camX = mc.getEntityRenderDispatcher().camera.getPos().getX();
+            double camY = mc.getEntityRenderDispatcher().camera.getPos().getY();
+            double camZ = mc.getEntityRenderDispatcher().camera.getPos().getZ();
+
+            float tickDelta = mc.getRenderTickCounter().getTickDelta(true);
+            double x = entity.prevX + (entity.getX() - entity.prevX) * tickDelta - camX;
+            double y = entity.prevY + (entity.getY() - entity.prevY) * tickDelta - camY;
+            double z = entity.prevZ + (entity.getZ() - entity.prevZ) * tickDelta - camZ;
+
+            float bodyYaw = entity.prevBodyYaw + (entity.bodyYaw - entity.prevBodyYaw) * tickDelta;
+
+            float wingY = (float) y + entity.getHeight() * 0.55f + offsetY.getValue();
+
+            float flap = animated.getValue() ? (float) Math.sin(flapAngle) * 0.3f : 0f;
+
+            int themeColor1 = ThemeManager.INSTANCE.getFirstColor();
+            int themeColor2 = ThemeManager.INSTANCE.getSecondColor();
+            int gradColor = ThemeManager.gradient(5, 0, themeColor1, themeColor2);
+
+            Color col = new Color(
+                (gradColor >> 16) & 0xFF,
+                (gradColor >> 8) & 0xFF,
+                gradColor & 0xFF,
+                Math.max(0, Math.min(255, (int)(alpha.getValue() * 255)))
+            );
+
+            if (glow.getValue()) {
+                renderGlow(stack, (float) x, wingY, (float) z, bodyYaw, col);
+            }
+
+            renderWing(stack, (float) x, wingY, (float) z, bodyYaw, flap, false, col);
+            renderWing(stack, (float) x, wingY, (float) z, bodyYaw, flap, true, col);
+        }
+
+        if (animated.getValue()) {
+            flapAngle += 0.06f * flapSpeed.getValue();
+        }
+    }
+
+    private void renderGlow(MatrixStack stack, float x, float y, float z, float yaw, Color col) {
+        float s = size.getValue();
+        float sp = spread.getValue();
+        float glowR = s * 1.8f * sp;
+
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
+        RenderSystem.disableDepthTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+        BufferBuilder buf = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLE_FAN, VertexFormats.POSITION_COLOR);
+
+        stack.push();
+        stack.translate(x, y, z);
+        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-yaw));
+        Matrix4f mat = stack.peek().getPositionMatrix();
+
+        int cr = col.getRed();
+        int cg = col.getGreen();
+        int cb = col.getBlue();
+
+        int steps = 24;
+        buf.vertex(mat, 0f, 0f, 0f).color(new Color(cr, cg, cb, 60).getRGB());
+        for (int i = 0; i <= steps; i++) {
+            float angle = (float) (i * Math.PI * 2 / steps);
+            float gx = (float) Math.cos(angle) * glowR;
+            float gy = (float) Math.sin(angle) * glowR * 0.45f;
+            buf.vertex(mat, gx, gy, 0f).color(new Color(cr, cg, cb, 0).getRGB());
+        }
+
+        Render2DEngine.endBuilding(buf);
+        stack.pop();
+
+        RenderSystem.enableDepthTest();
+        RenderSystem.disableBlend();
+    }
+
+    private void renderWing(MatrixStack stack, float x, float y, float z, float yaw, float flap, boolean right, Color col) {
+        float s = size.getValue();
+        float sp = spread.getValue();
+        float side = right ? 1f : -1f;
+
+        float w = s * 1.5f * sp;
+        float h = s * 1.2f;
+
+        float[][] pts = {
+            {0f, 0f},
+            {w * 0.18f, -h * 0.15f - flap * h * 0.2f},
+            {w * 0.45f, -h * 0.55f - flap * h * 0.4f},
+            {w * 0.72f, -h * 0.75f - flap * h * 0.5f},
+            {w * 0.95f, -h * 0.60f - flap * h * 0.4f},
+            {w * 1.00f, -h * 0.30f - flap * h * 0.2f},
+            {w * 0.85f, -h * 0.05f + flap * h * 0.1f},
+            {w * 0.55f,  h * 0.12f + flap * h * 0.1f},
+            {w * 0.25f,  h * 0.08f},
+            {0f, 0f}
+        };
+
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.disableDepthTest();
+        RenderSystem.disableCull();
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+        BufferBuilder buf = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLE_FAN, VertexFormats.POSITION_COLOR);
+
+        stack.push();
+        stack.translate(x, y, z);
+        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-yaw));
+        stack.scale(side, 1f, 1f);
+        Matrix4f mat = stack.peek().getPositionMatrix();
+
+        int cr = col.getRed();
+        int cg = col.getGreen();
+        int cb = col.getBlue();
+        int ca = col.getAlpha();
+
+        float cx2 = w * 0.45f;
+        float cy2 = -h * 0.4f;
+        buf.vertex(mat, cx2, cy2, 0f).color(new Color(cr, cg, cb, ca).getRGB());
+
+        for (float[] pt : pts) {
+            float tx = pt[0];
+            float ty = pt[1];
+            float tFactor = (float) Math.sqrt(tx * tx + ty * ty) / (float) Math.sqrt(w * w + h * h);
+            int edgeAlpha = (int) (ca * (0.5f + 0.5f * (1f - tFactor)));
+            buf.vertex(mat, tx, ty, 0f).color(new Color(cr, cg, cb, edgeAlpha).getRGB());
+        }
+
+        Render2DEngine.endBuilding(buf);
+        stack.pop();
+
+        renderWingEdge(stack, x, y, z, yaw, side, pts, col);
+
+        RenderSystem.enableCull();
+        RenderSystem.enableDepthTest();
+        RenderSystem.disableBlend();
+    }
+
+    private void renderWingEdge(MatrixStack stack, float x, float y, float z, float yaw, float side, float[][] pts, Color col) {
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        RenderSystem.lineWidth(1.2f);
+
+        BufferBuilder buf = Tessellator.getInstance().begin(VertexFormat.DrawMode.DEBUG_LINE_STRIP, VertexFormats.POSITION_COLOR);
+
+        stack.push();
+        stack.translate(x, y, z);
+        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-yaw));
+        stack.scale(side, 1f, 1f);
+        Matrix4f mat = stack.peek().getPositionMatrix();
+
+        int cr = Math.min(255, col.getRed() + 80);
+        int cg = Math.min(255, col.getGreen() + 80);
+        int cb = Math.min(255, col.getBlue() + 80);
+        int ca = (int) (col.getAlpha() * 0.7f);
+
+        for (float[] pt : pts) {
+            buf.vertex(mat, pt[0], pt[1], 0f).color(new Color(cr, cg, cb, ca).getRGB());
+        }
+
+        Render2DEngine.endBuilding(buf);
+        stack.pop();
+
+        RenderSystem.lineWidth(1f);
+    }
+}
