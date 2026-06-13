@@ -32,7 +32,7 @@ public class ClickGui extends Module {
     public final Setting<Boolean> closeAnimation = new Setting<>("CloseAnimation", true);
     public final Setting<Integer> alphaModules = new Setting<>("AlphaModules", 20, 0, 255);
     public final Setting<Boolean> filling = new Setting<>("Filling", true);
-    public final Setting<Double> rounding = new Setting<>("Rounding", 4.0, 0.0, 12.0);
+    public final Setting<Float> rounding = new Setting<>("Rounding", 4.0f, 0.0f, 12.0f);
     public final Setting<Boolean> strike = new Setting<>("Strike", true);
 
     public ClickGui() {
@@ -131,4 +131,4 @@ public class ClickGui extends Module {
             this.size = size;
         }
     }
-                                                            }
+                }
