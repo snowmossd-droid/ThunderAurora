@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import acore.aurora.AcoreAurora;
 import acore.aurora.core.Managers;
+import acore.aurora.core.manager.client.ModuleManager;
 import acore.aurora.events.impl.EventTick;
 import acore.aurora.events.impl.PacketEvent;
 import acore.aurora.events.impl.PlayerUpdateEvent;
@@ -147,4 +148,5 @@ public class MaceSwap extends Module {
     }
 
     public enum Mode { Swap, Auto }
-                                                          }
+}
+                
