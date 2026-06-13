@@ -91,6 +91,7 @@ public class ThemeManager {
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
     private void saveCustom() {
+        if (file == null) file = Paths.get(mc.runDirectory.getAbsolutePath(), "acoreaurora", "themes.dat");
         try {
             Files.createDirectories(file.getParent());
             List<String> lines = new ArrayList<>();
@@ -104,6 +105,7 @@ public class ThemeManager {
         } catch (IOException e) { System.err.println("ThemeManager save failed: " + e.getMessage()); }
     }
     private void loadCustom() {
+        if (file == null) file = Paths.get(mc.runDirectory.getAbsolutePath(), "acoreaurora", "themes.dat");
         try {
             if (!Files.exists(file)) return;
             Files.lines(file, StandardCharsets.UTF_8).map(String::trim).filter(s -> !s.isEmpty()).forEach(line -> {
@@ -114,4 +116,4 @@ public class ThemeManager {
             });
         } catch (IOException e) { System.err.println("ThemeManager load failed: " + e.getMessage()); }
     }
-                            }
+    }
