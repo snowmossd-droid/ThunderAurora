@@ -25,7 +25,7 @@ public class ExosToggleSwitchRenderer {
         int switchX = x + width - WIDTH + 4;
         int switchY = y + (HEIGHT - SWITCH_HEIGHT) / 2 - 2;
         Color offColor = new Color(50, 50, 50, 200);
-        int onColor    = ColorUtil.getFirstColor();
+        int onColor    = new Color(0, 200, 83, 255).getRGB();
         int bgColor    = ColorUtil.interpolateColor(offColor.getRGB(), onColor, progress);
         Render2DEngine.drawRound(ctx.getMatrices(), switchX, switchY, WIDTH, SWITCH_HEIGHT, 5f,
                 new Color(bgColor, true));
