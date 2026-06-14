@@ -117,6 +117,10 @@ public class GhostRenderer3D {
         return MathHelper.clamp((int)(alpha * factor), 0, 255);
     }
 
+    public boolean hasTrail() {
+        return !this.tail.isEmpty();
+    }
+
     public Vec3d getPosition() {
         return this.position;
     }
@@ -133,5 +137,5 @@ public class GhostRenderer3D {
     public void setMotion(Vec3d motion) {
         this.motion = motion;
     }
-  }
-                          
+                          }
+                  
