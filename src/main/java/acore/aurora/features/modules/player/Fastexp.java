@@ -5,8 +5,8 @@ import acore.aurora.injection.accesors.IMinecraftClient;
 import acore.aurora.setting.Setting;
 import net.minecraft.item.Items;
 
-public class FastExp extends Module {
-    public FastExp() {
+public class Fastexp extends Module {
+    public Fastexp() {
         super("Fastexp", Category.PLAYER);
     }
 
