@@ -46,6 +46,7 @@ public class ModuleManager implements IManager {
     public static PortalInventory portalInventory = new PortalInventory();
     public static TotemPopCounter totemPopCounter = new TotemPopCounter();
     public static HotbarReplenish hotbarReplenish = new HotbarReplenish();
+    public static Fastexp fastexp = new Fastexp();
     public static DurabilityAlert durabilityAlert = new DurabilityAlert();
     public static CrosshairArrows crosshairArrows = new CrosshairArrows();
     public static PearlBlockThrow pearlBlockThrow = new PearlBlockThrow();
