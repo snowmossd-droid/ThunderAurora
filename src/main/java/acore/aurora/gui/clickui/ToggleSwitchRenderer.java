@@ -1,46 +1,75 @@
-package acore.aurora.gui.clickui;
+package acore.aurora.gui.clickui.impl;
 import net.minecraft.client.gui.DrawContext;
-import acore.aurora.features.modules.client.HudEditor;
+import acore.aurora.gui.clickui.DescriptionRenderQueue;
 import acore.aurora.gui.font.FontRenderers;
 import acore.aurora.setting.Setting;
+import acore.aurora.utility.color.ColorUtil;
 import acore.aurora.utility.render.Render2DEngine;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import static acore.aurora.features.modules.Module.mc;
-public class ToggleSwitchRenderer {
-    private static final int H = 16, SW = 22, SH = 12, KR = 8;
+public class ExosToggleSwitchRenderer {
+    private static final int HEIGHT        = 16;
+    private static final int WIDTH         = 22;
+    private static final int SWITCH_HEIGHT = 12;
+    private static final int KNOB_RADIUS   = 8;
     private final Map<Setting<?>, Float> toggleMap = new HashMap<>();
-    public int getHeight() { return H; }
-    public void render(DrawContext ctx, Setting<?> s, int x, int y, int width, int height) {
-        float prog = toggleMap.getOrDefault(s, (boolean)s.getValue() ? 1f : 0f);
-        prog += (((boolean)s.getValue() ? 1f : 0f) - prog) * 0.15f;
-        toggleMap.put(s, prog);
-        int swX = x + width - SW + 4;
-        int swY = y + (H - SH) / 2 - 2;
-        Color off = new Color(50, 50, 50, 200);
-        Color raw = HudEditor.getColor(0);
-        Color on = (raw.getAlpha() < 10 || (raw.getRed() < 5 && raw.getGreen() < 5 && raw.getBlue() < 5))
-                ? new Color(180, 60, 60) : raw;
-        int r = (int)(off.getRed()   + (on.getRed()   - off.getRed())   * prog);
-        int g = (int)(off.getGreen() + (on.getGreen() - off.getGreen()) * prog);
-        int b = (int)(off.getBlue()  + (on.getBlue()  - off.getBlue())  * prog);
-        Render2DEngine.drawRound(ctx.getMatrices(), swX, swY, SW, SH, 5f, new Color(r, g, b, 200));
-        float kx = swX + 3 + (SW - KR - 5) * prog + KR / 2f;
-        float ky = swY + (SH - KR) / 2f + KR / 2f;
-        Render2DEngine.renderRoundedQuad(ctx.getMatrices(), Color.WHITE, kx - KR/2f, ky - KR/2f, kx + KR/2f, ky + KR/2f, KR/2f, 8);
-        float maxW = swX - x - 4;
-        FontRenderers.sf_medium_mini.drawString(ctx.getMatrices(), s.getName(), x, y + (H - 7) / 2f, Color.WHITE.getRGB());
+    private final Map<Setting<?>, Float> scrollMap = new HashMap<>();
+    public int getHeight() { return HEIGHT; }
+    public void render(DrawContext ctx, Setting<?> setting, int x, int y, int width, int height) {
+        boolean val = (Boolean) setting.getValue();
+        float progress = toggleMap.getOrDefault(setting, val ? 1f : 0f);
+        progress += ((val ? 1f : 0f) - progress) * 0.15f;
+        toggleMap.put(setting, progress);
+        int switchX = x + width - WIDTH + 4;
+        int switchY = y + (HEIGHT - SWITCH_HEIGHT) / 2 - 2;
+        Color offColor = new Color(50, 50, 50, 200);
+        int onColor    = new Color(0, 200, 83, 255).getRGB();
+        int bgColor    = ColorUtil.interpolateColor(offColor.getRGB(), onColor, progress);
+        Render2DEngine.drawRound(ctx.getMatrices(), switchX, switchY, WIDTH, SWITCH_HEIGHT, 5f,
+                new Color(bgColor, true));
+        float kx = switchX + 3 + (WIDTH - KNOB_RADIUS - 5) * progress + KNOB_RADIUS / 2f;
+        float ky = switchY + (SWITCH_HEIGHT - KNOB_RADIUS) / 2f + KNOB_RADIUS / 2f;
+        Render2DEngine.renderRoundedQuad(ctx.getMatrices(), Color.WHITE,
+                kx - KNOB_RADIUS / 2f, ky - KNOB_RADIUS / 2f,
+                kx + KNOB_RADIUS / 2f, ky + KNOB_RADIUS / 2f,
+                KNOB_RADIUS / 2f, 8);
+        String text      = setting.getName();
+        float maxTW      = switchX - x - 4;
+        float textWidth  = FontRenderers.sf_medium_mini.getStringWidth(text);
+        int   textY      = y + (HEIGHT - 7) / 2;
+        double scale = mc.getWindow().getScaleFactor();
+        double mX = mc.mouse.getX() / scale;
+        double mY = mc.mouse.getY() / scale;
+        float overflow = textWidth - maxTW;
+        float offset   = scrollMap.getOrDefault(setting, 0f);
+        boolean textHovered = mX >= x && mX <= x + maxTW && mY >= textY - 1 && mY <= textY + 8;
+        if (textHovered && overflow > 0) offset = Math.min(offset + 0.5f, overflow);
+        else offset = Math.max(offset - 0.5f, 0f);
+        scrollMap.put(setting, offset);
+        Render2DEngine.addWindow(ctx.getMatrices(), x, textY - 1, x + maxTW, textY + 8, 1.0);
+        ctx.getMatrices().push();
+        FontRenderers.sf_medium_mini.drawString(ctx.getMatrices(), text,
+                x - offset, textY, Color.WHITE.getRGB());
+        ctx.getMatrices().pop();
+        Render2DEngine.popWindow();
+        boolean switchHov = mX >= switchX && mX <= switchX + WIDTH && mY >= switchY && mY <= switchY + SWITCH_HEIGHT;
+        if (switchHov && setting.getName() != null && !setting.getName().isEmpty()) {
+            DescriptionRenderQueue.add(setting.getName(), (float) mX + 6, (float) mY + 6);
+        }
     }
-    public boolean mouseClicked(Setting<?> s, double mx, double my, int btn, int x, int y, int width, int height) {
+    public boolean mouseClicked(Setting<?> setting, double mx, double my, int btn,
+                                int x, int y, int width, int height) {
         if (btn != 0) return false;
-        int swX = x + width - SW + 4;
-        int swY = y + (H - SH) / 2 - 2;
-        if (mx >= swX && mx <= swX + SW && my >= swY && my <= swY + SH) {
+        int switchX = x + width - WIDTH + 4;
+        int switchY = y + (HEIGHT - SWITCH_HEIGHT) / 2 - 2;
+        if (mx >= switchX && mx <= switchX + WIDTH && my >= switchY && my <= switchY + SWITCH_HEIGHT) {
             @SuppressWarnings("unchecked")
-            Setting<Boolean> bs = (Setting<Boolean>) s;
-            bs.setValue(!bs.getValue()); return true;
+            Setting<Boolean> bs = (Setting<Boolean>) setting;
+            bs.setValue(!bs.getValue());
+            return true;
         }
         return false;
     }
-}
+    }
