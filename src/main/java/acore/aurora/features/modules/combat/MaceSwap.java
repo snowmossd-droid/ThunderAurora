@@ -16,17 +16,15 @@ import static acore.aurora.features.modules.Module.mc;
 public class MaceSwap extends Module {
 
     public final Setting<Integer> toMaceDelay    = new Setting<>("ToMaceDelay",    50,  0, 500);
-    public final Setting<Integer> toSwordDelay   = new Setting<>("ToSwordDelay",   200, 0, 1000);
     public final Setting<Boolean> attackWithMace = new Setting<>("AttackWithMace", true);
     public final Setting<Boolean> onlyFalling    = new Setting<>("OnlyFalling",    false);
     public final Setting<Float>   minFall        = new Setting<>("MinFall",        3f, 0f, 20f, v -> onlyFalling.getValue());
 
-    private final Timer toMaceTimer  = new Timer();
-    private final Timer toSwordTimer = new Timer();
+    private final Timer toMaceTimer = new Timer();
 
     private int savedSlot = -1;
     private boolean swapped = false;
-    private boolean attackedWithMace = false;
+    private boolean pendingAttack = false;
 
     public MaceSwap() {
         super("MaceSwap", Category.COMBAT);
@@ -62,30 +60,25 @@ public class MaceSwap extends Module {
             savedSlot = mc.player.getInventory().selectedSlot;
             silentSwap(maceSlot);
             swapped = true;
-            attackedWithMace = false;
-            toSwordTimer.reset();
-
-            if (attackWithMace.getValue()) {
-                mc.interactionManager.attackEntity(mc.player, ModuleManager.aura.getTarget());
-                mc.player.swingHand(Hand.MAIN_HAND);
-                attackedWithMace = true;
-            }
+            pendingAttack = attackWithMace.getValue();
+            return;
         }
 
-        if (swapped && toSwordTimer.passedMs(toSwordDelay.getValue())) {
-            int swordSlot = findHotbar(false);
-            silentSwap(swordSlot != -1 ? swordSlot : savedSlot);
+        if (pendingAttack) {
+            mc.interactionManager.attackEntity(mc.player, ModuleManager.aura.getTarget());
+            mc.player.swingHand(Hand.MAIN_HAND);
+            pendingAttack = false;
+
+            silentSwap(savedSlot);
             swapped = false;
             savedSlot = -1;
-            attackedWithMace = false;
             toMaceTimer.reset();
         }
     }
 
     private void restoreIfNeeded() {
-        if (swapped && toSwordTimer.passedMs(toSwordDelay.getValue())) {
-            int swordSlot = findHotbar(false);
-            silentSwap(swordSlot != -1 ? swordSlot : savedSlot);
+        if (swapped && savedSlot != -1) {
+            silentSwap(savedSlot);
             swapped = false;
             savedSlot = -1;
             toMaceTimer.reset();
@@ -95,7 +88,6 @@ public class MaceSwap extends Module {
     private void silentSwap(int slot) {
         if (slot < 0 || slot > 8 || mc.player == null) return;
         mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(slot));
-        mc.player.getInventory().selectedSlot = slot;
     }
 
     private int findHotbar(boolean mace) {
@@ -114,6 +106,6 @@ public class MaceSwap extends Module {
         }
         swapped = false;
         savedSlot = -1;
-        attackedWithMace = false;
+        pendingAttack = false;
     }
-            }
+    }
