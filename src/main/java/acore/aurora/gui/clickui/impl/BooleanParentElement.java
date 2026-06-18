@@ -67,7 +67,11 @@ public class BooleanParentElement extends AbstractElement {
     @Override
     public void mouseClicked(int mx, int my, int button) {
         if (hovered) {
-            if (button == 0) {
+            float trackW = 20f;
+            float trackH = 9f;
+            float trackX = x + width - trackW - 20;
+            float trackY = y + height / 2f - trackH / 2f;
+            if (Render2DEngine.isHovered(mx, my, trackX, trackY, trackW, trackH)) {
                 parentSetting.getValue().setEnabled(!parentSetting.getValue().isEnabled());
                 Managers.SOUND.playBoolean();
             } else {
@@ -79,4 +83,5 @@ public class BooleanParentElement extends AbstractElement {
         super.mouseClicked(mx, my, button);
     }
     public Setting<BooleanSettingGroup> getParentSetting() { return parentSetting; }
-}
+                        }
+                    
