@@ -24,7 +24,7 @@ public class ThemeManager {
     private Path file;
     public void init() {
         file = Paths.get(mc.runDirectory.getAbsolutePath(), "acoreaurora", "themes.dat");
-        addBuiltin("Client",    "#5433FF", "#00FFFF");
+        addBuiltin("Client",    "#4A9EFF", "#B8DCFF");
         addBuiltin("Autumn",    "#FF7D00", "#FFD700");
         addBuiltin("Acid",      "#CCFF00", "#00FF00");
         addBuiltin("Ocean",     "#0077BE", "#00B4D8");
@@ -61,7 +61,7 @@ public class ThemeManager {
     public Style getTheme()       { return current; }
     public List<Style> getStyles(){ return styles; }
     public int getFirstColor() {
-        return current != null && current.colors.length > 0 ? current.colors[0] : 0xFF5433FF;
+        return current != null && current.colors.length > 0 ? current.colors[0] : 0xFF4A9EFF;
     }
     public int getSecondColor() {
         return current != null && current.colors.length > 1 ? current.colors[1] : getFirstColor();
@@ -116,4 +116,5 @@ public class ThemeManager {
             });
         } catch (IOException e) { System.err.println("ThemeManager load failed: " + e.getMessage()); }
     }
-    }
+                                   }
+    
