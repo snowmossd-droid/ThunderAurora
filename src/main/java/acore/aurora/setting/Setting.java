@@ -211,6 +211,9 @@ public class Setting<T> {
 
     public boolean isVisible() {
         if (group != null) {
+            if (!group.isVisible())
+                return false;
+
             if (group.getValue() instanceof BooleanSettingGroup bp)
                 if (!bp.isExtended())
                     return false;
@@ -235,3 +238,4 @@ public class Setting<T> {
     }
 }
 
+            
