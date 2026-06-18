@@ -126,7 +126,7 @@ public class ModuleButton extends AbstractButton {
             float bx  = trackX - FontRenderers.sf_medium_modules.getStringWidth(sb) - 5;
             FontRenderers.sf_medium_modules.drawString(ctx.getMatrices(), sb, bx, nameY, BIND_TEXT.getRGB());
         }
-        if (module.getSettings().size() > 3 && isOpen()) {
+        if (elements.size() > 0 && isOpen()) {
             float subOffY  = 0;
             float subBaseY = y + height + 2;
             Render2DEngine.addWindow(ctx.getMatrices(),
@@ -149,7 +149,7 @@ public class ModuleButton extends AbstractButton {
             }
             ctx.getMatrices().push();
             TargetHud.sizeAnimation(ctx.getMatrices(), x + width / 2f + 6, y + height / 2f - 12,
-                    ticksOpened < 5 ? Math.clamp(category_animation / subOffY, 0f, 1f) : 1f);
+                    ticksOpened < 5 ? Math.clamp(category_animation / Math.max(subOffY, 1f), 0f, 1f) : 1f);
             elements.forEach(e -> { if (e.isVisible()) e.render(ctx, mx, my, delta); });
             ctx.getMatrices().pop();
             Render2DEngine.popWindow();
@@ -161,8 +161,18 @@ public class ModuleButton extends AbstractButton {
     }
     private float computeRawElementsH() {
         float h = 0;
-        for (AbstractElement el : elements)
-            if (el.isVisible()) h += (el instanceof SliderElement ? 18 : 13);
+        for (AbstractElement el : elements) {
+            if (!el.isVisible()) continue;
+            if (el instanceof ColorPickerElement picker) {
+                h += picker.getHeight();
+            } else if (el instanceof SliderElement) {
+                h += 18;
+            } else if (el instanceof ModeElement me) {
+                h += me.isOpen() ? 13 + me.getSetting().getModes().length * 12 : 13;
+            } else {
+                h += 13;
+            }
+        }
         return h;
     }
     @NotNull
@@ -205,7 +215,7 @@ public class ModuleButton extends AbstractButton {
             }
             if (btn == 0) {
                 if (module.isToggleable()) module.toggle();
-            } else if (btn == 1 && module.getSettings().size() > 3) {
+            } else if (btn == 1 && elements.size() > 0) {
                 setOpen(!open);
                 if (open) Managers.SOUND.playSwipeIn(); else Managers.SOUND.playSwipeOut();
                 animation = 0.5f;
@@ -244,4 +254,5 @@ public class ModuleButton extends AbstractButton {
         if (isOpen()) { gearAnimation.tick(); ticksOpened++; }
         else            ticksOpened = 0;
     }
-}
+    }
+                       
