@@ -49,16 +49,14 @@ public class ExosModeRenderer {
                     new Color(200, 200, 200).getRGB(), Color.WHITE.getRGB(), hp);
             Render2DEngine.drawRound(ctx.getMatrices(), cx, cy, bw, BOX_H, 2f,
                     new Color(bgColor, true));
-            float maxTW  = bw - PAD_H * 2;
-            float ow     = tw - maxTW;
             float offset = scrollOff.getOrDefault(mode, 0f);
-            if (hov && ow > 0) offset = Math.min(offset + 0.5f, ow);
-            else               offset = Math.max(offset - 0.5f, 0f);
+            if (hov && tw > bw) offset = Math.min(offset + 0.5f, tw - bw);
+            else                offset = Math.max(offset - 0.5f, 0f);
             scrollOff.put(mode, offset);
-            Render2DEngine.addWindow(ctx.getMatrices(), cx + PAD_H, cy, cx + PAD_H + maxTW, cy + BOX_H, 1.0);
+            Render2DEngine.addWindow(ctx.getMatrices(), cx, cy, cx + bw, cy + BOX_H, 1.0);
             ctx.getMatrices().push();
             FontRenderers.sf_medium_mini.drawString(ctx.getMatrices(), mode,
-                    cx + PAD_H - offset,
+                    cx + bw / 2f - tw / 2f - offset,
                     cy + (BOX_H - 7) / 2f,
                     textColor);
             ctx.getMatrices().pop();
@@ -82,4 +80,5 @@ public class ExosModeRenderer {
         }
         return false;
     }
-}
+                                                }
+                
