@@ -19,9 +19,7 @@ import acore.aurora.core.manager.client.ModuleManager;
 import acore.aurora.core.manager.client.ProxyManager;
 import acore.aurora.events.impl.ClientClickEvent;
 import acore.aurora.gui.misc.DialogScreen;
-import acore.aurora.features.modules.client.ClientSettings;
 import acore.aurora.utility.math.MathUtility;
-import acore.aurora.utility.render.Render2DEngine;
 import acore.aurora.utility.render.TextureStorage;
 
 import java.io.BufferedReader;
@@ -61,7 +59,7 @@ public abstract class MixinScreen {
                     TextureStorage.questionPic,
                     isRu() ? "Обнаружен конфиг!" : "Config detected!",
                     isRu() ? "Ты действительно хочешь загрузить " + fileName + "?" : "Are you sure you want to load " + fileName + "?",
-                    isRu() ? "Да" : "Yes", 
+                    isRu() ? "Да" : "Yes",
                     isRu() ? "Нет" : "No",
                     () -> {
                         Managers.MODULE.onUnload("none");
@@ -76,7 +74,7 @@ public abstract class MixinScreen {
                     TextureStorage.questionPic,
                     isRu() ? "Обнаружен текстовый файл!" : "Text file detected!",
                     isRu() ? "Импортировать файл " + fileName + " как" : "Import file " + fileName + " as",
-                    isRu() ? "Прокси" : "Proxies", 
+                    isRu() ? "Прокси" : "Proxies",
                     isRu() ? "Забить" : "Cancel",
                     () -> {
                         try {
@@ -111,14 +109,6 @@ public abstract class MixinScreen {
         }
     }
 
-    @Inject(method = "renderPanoramaBackground", at = @At("HEAD"), cancellable = true)
-    public void renderPanoramaBackgroundHook(DrawContext context, float delta, CallbackInfo ci) {
-        if (ClientSettings.customPanorama.getValue() && mc.world == null) {
-            ci.cancel();
-            Render2DEngine.drawMainMenuShader(context.getMatrices(), 0, 0, mc.getWindow().getScaledWidth(), mc.getWindow().getScaledHeight());
-        }
-    }
-
     @Inject(method = "renderInGameBackground", at = @At("HEAD"), cancellable = true)
     private void renderInGameBackground(CallbackInfo info) {
         if (ModuleManager.noRender.isEnabled() && ModuleManager.noRender.disableGuiBackGround.getValue()) {
@@ -132,4 +122,5 @@ public abstract class MixinScreen {
             ci.cancel();
         }
     }
-}
+    }
+                
