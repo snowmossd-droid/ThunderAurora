@@ -30,6 +30,7 @@ import static acore.aurora.features.modules.client.ClientSettings.isRu;
 import static acore.aurora.utility.render.animation.AnimationUtility.fast;
 public class ModuleButton extends AbstractButton {
     private final List<AbstractElement> elements;
+    private final java.util.Set<acore.aurora.setting.Setting<?>> autoOpenedGroups = new java.util.HashSet<>();
     public final Module module;
     private boolean open;
     private boolean hovered, prevHovered;
@@ -126,6 +127,8 @@ public class ModuleButton extends AbstractButton {
             float bx  = trackX - FontRenderers.sf_medium_modules.getStringWidth(sb) - 5;
             FontRenderers.sf_medium_modules.drawString(ctx.getMatrices(), sb, bx, nameY, BIND_TEXT.getRGB());
         }
+        category_animation = fast(category_animation, open ? (float) computeRawElementsH() : 0f, 20f);
+
         if (elements.size() > 0 && isOpen()) {
             float subOffY  = 0;
             float subBaseY = y + height + 2;
@@ -134,6 +137,14 @@ public class ModuleButton extends AbstractButton {
                             (float)(y + height + 1f + getElementsHeight())));
             for (AbstractElement el : elements) {
                 if (!el.isVisible()) continue;
+                if (el instanceof ParentElement pe && !autoOpenedGroups.contains(pe.getParentSetting())) {
+                    autoOpenedGroups.add(pe.getParentSetting());
+                    if (!pe.getParentSetting().getValue().isExtended())
+                        pe.getParentSetting().getValue().setExtended(true);
+                }
+                if (el instanceof BooleanParentElement bpe && !autoOpenedGroups.contains(bpe.getParentSetting())) {
+                    autoOpenedGroups.add(bpe.getParentSetting());
+                }
                 el.setOffsetY(subOffY);
                 el.setX(x);
                 el.setY(subBaseY);
@@ -154,7 +165,6 @@ public class ModuleButton extends AbstractButton {
             ctx.getMatrices().pop();
             Render2DEngine.popWindow();
         }
-        category_animation = fast(category_animation, open ? (float) computeRawElementsH() : 0f, 20f);
         if (hovered && GLFW.glfwGetPlatform() != GLFW.GLFW_PLATFORM_WAYLAND)
             GLFW.glfwSetCursor(mc.getWindow().getHandle(),
                     GLFW.glfwCreateStandardCursor(GLFW.GLFW_HAND_CURSOR));
@@ -249,10 +259,13 @@ public class ModuleButton extends AbstractButton {
     public List<AbstractElement> getElements() { return elements; }
     public double getElementsHeight() { return category_animation; }
     public boolean isOpen()           { return open; }
-    public void    setOpen(boolean o) { this.open = o; }
+    public void    setOpen(boolean o) {
+        this.open = o;
+        if (!o) autoOpenedGroups.clear();
+    }
     public void tick() {
         if (isOpen()) { gearAnimation.tick(); ticksOpened++; }
         else            ticksOpened = 0;
     }
-    }
-                       
+                                    }
+            
