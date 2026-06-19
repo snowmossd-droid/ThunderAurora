@@ -30,7 +30,6 @@ import static acore.aurora.features.modules.client.ClientSettings.isRu;
 import static acore.aurora.utility.render.animation.AnimationUtility.fast;
 public class ModuleButton extends AbstractButton {
     private final List<AbstractElement> elements;
-    private final java.util.Set<acore.aurora.setting.Setting<?>> autoOpenedGroups = new java.util.HashSet<>();
     public final Module module;
     private boolean open;
     private boolean hovered, prevHovered;
@@ -137,14 +136,6 @@ public class ModuleButton extends AbstractButton {
                             (float)(y + height + 1f + getElementsHeight())));
             for (AbstractElement el : elements) {
                 if (!el.isVisible()) continue;
-                if (el instanceof ParentElement pe && !autoOpenedGroups.contains(pe.getParentSetting())) {
-                    autoOpenedGroups.add(pe.getParentSetting());
-                    if (!pe.getParentSetting().getValue().isExtended())
-                        pe.getParentSetting().getValue().setExtended(true);
-                }
-                if (el instanceof BooleanParentElement bpe && !autoOpenedGroups.contains(bpe.getParentSetting())) {
-                    autoOpenedGroups.add(bpe.getParentSetting());
-                }
                 el.setOffsetY(subOffY);
                 el.setX(x);
                 el.setY(subBaseY);
@@ -259,13 +250,10 @@ public class ModuleButton extends AbstractButton {
     public List<AbstractElement> getElements() { return elements; }
     public double getElementsHeight() { return category_animation; }
     public boolean isOpen()           { return open; }
-    public void    setOpen(boolean o) {
-        this.open = o;
-        if (!o) autoOpenedGroups.clear();
-    }
+    public void    setOpen(boolean o) { this.open = o; }
     public void tick() {
         if (isOpen()) { gearAnimation.tick(); ticksOpened++; }
         else            ticksOpened = 0;
     }
-                                    }
-            
+    }
+                                                         
