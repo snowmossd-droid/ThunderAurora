@@ -5,9 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Camera;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
@@ -77,40 +75,67 @@ public class GhostRenderer3D {
     }
 
     public void render(BufferBuilder buffer, Camera camera) {
-        for (Vector4f vec : this.tail) {
-            if (!(vec.w() <= 0.0F)) {
-                float progress = vec.w() / this.trailLength;
-                float miniSize = this.size * progress;
-                double relX = vec.x() - camera.getPos().x;
-                double relY = vec.y() - camera.getPos().y;
-                double relZ = vec.z() - camera.getPos().z;
-                MatrixStack matrices = new MatrixStack();
-                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(camera.getYaw() + 180.0F));
-                matrices.translate(relX, relY, relZ);
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-camera.getYaw()));
-                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
-                Matrix4f matrix = matrices.peek().getPositionMatrix();
-                int alphaValue = MathHelper.clamp((int)(progress * 255.0F), 0, 255);
-                int color = Render2DEngine.injectAlpha(HudEditor.getColor(0), alphaValue).getRGB();
-                int r = color >> 16 & 0xFF;
-                int g = color >> 8 & 0xFF;
-                int b = color & 0xFF;
-                renderQuad(buffer, matrix, miniSize * 2.6F, r, g, b, scaleAlpha(alphaValue, 0.11000001F));
-                renderQuad(buffer, matrix, miniSize * 1.8F, r, g, b, scaleAlpha(alphaValue, 0.23099999F));
-                renderQuad(buffer, matrix, miniSize, r, g, b, alphaValue);
-            }
+        if (this.tail.size() < 2) return;
+
+        java.util.List<Vector4f> pts = this.tail;
+        for (int i = 0; i < pts.size() - 1; i++) {
+            Vector4f a = pts.get(i);
+            Vector4f b = pts.get(i + 1);
+            if (a.w() <= 0.0F || b.w() <= 0.0F) continue;
+
+            float progressA = a.w() / this.trailLength;
+            float progressB = b.w() / this.trailLength;
+
+            int colorA = Render2DEngine.injectAlpha(HudEditor.getColor(0), MathHelper.clamp((int)(progressA * 255.0F), 0, 255)).getRGB();
+            int colorB = Render2DEngine.injectAlpha(HudEditor.getColor(0), MathHelper.clamp((int)(progressB * 255.0F), 0, 255)).getRGB();
+
+            float widthA = this.size * (0.55F + progressA * 0.45F);
+            float widthB = this.size * (0.55F + progressB * 0.45F);
+
+            renderRibbonSegment(buffer, camera, a, b, widthA * OUTER_GLOW_SCALE, widthB * OUTER_GLOW_SCALE,
+                    colorA, colorB, scaleAlpha((int)(progressA * 255.0F), OUTER_GLOW_ALPHA), scaleAlpha((int)(progressB * 255.0F), OUTER_GLOW_ALPHA));
+            renderRibbonSegment(buffer, camera, a, b, widthA * INNER_GLOW_SCALE, widthB * INNER_GLOW_SCALE,
+                    colorA, colorB, scaleAlpha((int)(progressA * 255.0F), INNER_GLOW_ALPHA), scaleAlpha((int)(progressB * 255.0F), INNER_GLOW_ALPHA));
+            renderRibbonSegment(buffer, camera, a, b, widthA, widthB,
+                    colorA, colorB, MathHelper.clamp((int)(progressA * 255.0F), 0, 255), MathHelper.clamp((int)(progressB * 255.0F), 0, 255));
         }
     }
 
-    private static void renderQuad(BufferBuilder buffer, Matrix4f matrix, float size, int red, int green, int blue, int alpha) {
-        if (!(size <= 0.0F) && alpha > 0) {
-            float halfSize = size / 2.0F;
-            buffer.vertex(matrix, -halfSize, halfSize, 0.0F).texture(0.0F, 1.0F).color(red, green, blue, alpha);
-            buffer.vertex(matrix, halfSize, halfSize, 0.0F).texture(1.0F, 1.0F).color(red, green, blue, alpha);
-            buffer.vertex(matrix, halfSize, -halfSize, 0.0F).texture(1.0F, 0.0F).color(red, green, blue, alpha);
-            buffer.vertex(matrix, -halfSize, -halfSize, 0.0F).texture(0.0F, 0.0F).color(red, green, blue, alpha);
-        }
+    private static final Matrix4f IDENTITY = new Matrix4f();
+
+    private static void renderRibbonSegment(BufferBuilder buffer, Camera camera, Vector4f a, Vector4f b,
+                                              float widthA, float widthB, int colorA, int colorB, int alphaA, int alphaB) {
+        if (alphaA <= 0 && alphaB <= 0) return;
+
+        double ax = a.x() - camera.getPos().x;
+        double ay = a.y() - camera.getPos().y;
+        double az = a.z() - camera.getPos().z;
+        double bx = b.x() - camera.getPos().x;
+        double by = b.y() - camera.getPos().y;
+        double bz = b.z() - camera.getPos().z;
+
+        double dx = bx - ax, dy = by - ay, dz = bz - az;
+        double midX = (ax + bx) / 2.0;
+        double midY = (ay + by) / 2.0;
+        double midZ = (az + bz) / 2.0;
+
+        double nx = midY * dz - midZ * dy;
+        double ny = midZ * dx - midX * dz;
+        double nz = midX * dy - midY * dx;
+        double len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+        if (len < 1.0E-6) return;
+        nx /= len; ny /= len; nz /= len;
+
+        float hwA = widthA / 2.0F;
+        float hwB = widthB / 2.0F;
+
+        int rA = colorA >> 16 & 0xFF, gA = colorA >> 8 & 0xFF, bA = colorA & 0xFF;
+        int rB = colorB >> 16 & 0xFF, gB = colorB >> 8 & 0xFF, bB = colorB & 0xFF;
+
+        buffer.vertex(IDENTITY, (float)(ax - nx * hwA), (float)(ay - ny * hwA), (float)(az - nz * hwA)).texture(0.0F, 1.0F).color(rA, gA, bA, alphaA);
+        buffer.vertex(IDENTITY, (float)(bx - nx * hwB), (float)(by - ny * hwB), (float)(bz - nz * hwB)).texture(0.0F, 0.0F).color(rB, gB, bB, alphaB);
+        buffer.vertex(IDENTITY, (float)(bx + nx * hwB), (float)(by + ny * hwB), (float)(bz + nz * hwB)).texture(1.0F, 0.0F).color(rB, gB, bB, alphaB);
+        buffer.vertex(IDENTITY, (float)(ax + nx * hwA), (float)(ay + ny * hwA), (float)(az + nz * hwA)).texture(1.0F, 1.0F).color(rA, gA, bA, alphaA);
     }
 
     private static int scaleAlpha(int alpha, float factor) {
@@ -137,5 +162,6 @@ public class GhostRenderer3D {
     public void setMotion(Vec3d motion) {
         this.motion = motion;
     }
-                          }
-                  
+}
+
+    
