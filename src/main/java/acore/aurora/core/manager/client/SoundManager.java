@@ -16,12 +16,9 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 import java.io.File;
-import java.io.FileInputStream;
-import java.nio.file.Files;
 
 import static acore.aurora.features.cmd.Command.sendMessage;
 import static acore.aurora.core.manager.client.ConfigManager.SOUNDS_FOLDER;
-import static acore.aurora.core.manager.client.ConfigManager.CRITSOUND_FOLDER;
 import static acore.aurora.features.modules.render.ClientSettings.isRu;
 
 public class SoundManager implements IManager {
@@ -138,45 +135,13 @@ public class SoundManager implements IManager {
         playSound(WITHER_SOUNDEVENT);
     }
 
-    public void playCritSoundFile(float volume) {
-        try {
-            File[] files = CRITSOUND_FOLDER.listFiles((d, name) ->
-                name.toLowerCase().endsWith(".ogg"));
-            if (files == null || files.length == 0) {
-                sendMessage("CritSound: Không tìm thấy file .ogg trong " + CRITSOUND_FOLDER.getAbsolutePath());
-                return;
-            }
-            File soundFile = files[0];
-            net.minecraft.client.sound.PositionedSoundInstance instance =
-                new net.minecraft.client.sound.PositionedSoundInstance(
-                    Identifier.of("acoreaurora", "critsound_dynamic"),
-                    SoundCategory.PLAYERS,
-                    volume, 1.0f,
-                    net.minecraft.util.math.random.Random.create(),
-                    false, 0,
-                    net.minecraft.client.sound.SoundInstance.AttenuationType.NONE,
-                    0, 0, 0, true
-                ) {
-                    @Override
-                    public net.minecraft.client.sound.WeightedSoundSet getSoundSet(net.minecraft.client.sound.SoundManager manager) {
-                        return null;
-                    }
-                    @Override
-                    public net.minecraft.client.sound.Sound getSound() {
-                        net.minecraft.util.math.floatprovider.FloatSupplier volumeSupplier = (random) -> volume;
-                        net.minecraft.util.math.floatprovider.FloatSupplier pitchSupplier = (random) -> 1.0f;
-                        return new net.minecraft.client.sound.Sound(
-                            Identifier.of("acoreaurora", soundFile.getName().replace(".ogg", "").toLowerCase()),
-                            volumeSupplier, pitchSupplier, 1,
-                            net.minecraft.client.sound.Sound.RegistrationType.FILE,
-                            true, false, 16
-                        );
-                    }
-                };
-            mc.getSoundManager().play(instance);
-        } catch (Exception e) {
-            sendMessage("CritSound: Lỗi phát sound - " + e.getMessage());
-        }
+    public void playWither(float volume) {
+        if (mc.player == null || mc.world == null) return;
+        mc.getSoundManager().play(
+            net.minecraft.client.sound.PositionedSoundInstance.ambient(
+                WITHER_SOUNDEVENT, volume, 1.0f
+            )
+        );
     }
 
     public void playSwipeIn() {
@@ -191,4 +156,4 @@ public class SoundManager implements IManager {
         if (sound == ChatUtils.PMSound.Default) playSound(PM_SOUNDEVENT);
         else Managers.SOUND.playSound("pmsound");
     }
-                                                         }
+    }
