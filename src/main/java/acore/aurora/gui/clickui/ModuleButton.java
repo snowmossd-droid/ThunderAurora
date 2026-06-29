@@ -127,10 +127,8 @@ public class ModuleButton extends AbstractButton {
             float bx  = trackX - FontRenderers.sf_medium_modules.getStringWidth(sb) - 5;
             FontRenderers.sf_medium_modules.drawString(ctx.getMatrices(), sb, bx, nameY, BIND_TEXT.getRGB());
         }
-        category_animation = fast(category_animation, open ? (float) computeRawElementsH() : 0f, 20f);
-
+        float subOffY = 0;
         if (elements.size() > 0 && isOpen()) {
-            float subOffY  = 0;
             float subBaseY = y + height + 2;
             Render2DEngine.addWindow(ctx.getMatrices(),
                     new Render2DEngine.Rectangle(x + 1, y + height - 2, x + width - 2,
@@ -157,25 +155,10 @@ public class ModuleButton extends AbstractButton {
             ctx.getMatrices().pop();
             Render2DEngine.popWindow();
         }
+        category_animation = fast(category_animation, subOffY, 20f);
         if (hovered && GLFW.glfwGetPlatform() != GLFW.GLFW_PLATFORM_WAYLAND)
             GLFW.glfwSetCursor(mc.getWindow().getHandle(),
                     GLFW.glfwCreateStandardCursor(GLFW.GLFW_HAND_CURSOR));
-    }
-    private float computeRawElementsH() {
-        float h = 0;
-        for (AbstractElement el : elements) {
-            if (!el.isVisible()) continue;
-            if (el instanceof ColorPickerElement picker) {
-                h += picker.getHeight();
-            } else if (el instanceof SliderElement) {
-                h += 18;
-            } else if (el instanceof ModeElement me) {
-                h += me.isOpen() ? 13 + me.getSetting().getModes().length * 12 : 13;
-            } else {
-                h += 13;
-            }
-        }
-        return h;
     }
     @NotNull
     private String formatBind(String s) {
@@ -259,4 +242,5 @@ public class ModuleButton extends AbstractButton {
         if (isOpen()) { gearAnimation.tick(); ticksOpened++; }
         else            ticksOpened = 0;
     }
-                                    }
+    }
+            
