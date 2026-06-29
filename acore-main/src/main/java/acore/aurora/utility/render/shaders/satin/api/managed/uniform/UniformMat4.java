@@ -1,9 +1,0 @@
-package acore.aurora.utility.render.shaders.satin.api.managed.uniform;
-
-import org.joml.Matrix4f;
-
-public interface UniformMat4 {
-    void set(Matrix4f value);
-
-    void setFromArray(float[] values);
-}
