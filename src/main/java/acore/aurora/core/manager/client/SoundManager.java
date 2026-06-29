@@ -165,7 +165,7 @@ public class SoundManager implements IManager {
                     public net.minecraft.client.sound.Sound getSound() {
                         return new net.minecraft.client.sound.Sound(
                             Identifier.of("acoreaurora", soundFile.getName().replace(".ogg", "").toLowerCase()),
-                            (java.util.function.FloatSupplier) () -> volume, (net.minecraft.client.sound.Sound.FloatSupplier) () -> 1.0f, 1,
+                            volume, 1.0f, 1,
                             net.minecraft.client.sound.Sound.RegistrationType.FILE,
                             true, false, 16
                         );
@@ -189,4 +189,4 @@ public class SoundManager implements IManager {
         if (sound == ChatUtils.PMSound.Default) playSound(PM_SOUNDEVENT);
         else Managers.SOUND.playSound("pmsound");
     }
-        }
+    }
