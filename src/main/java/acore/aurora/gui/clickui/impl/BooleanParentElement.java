@@ -1,4 +1,5 @@
 package acore.aurora.gui.clickui.impl;
+
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
@@ -12,75 +13,84 @@ import acore.aurora.setting.Setting;
 import acore.aurora.setting.impl.BooleanSettingGroup;
 import acore.aurora.utility.render.Render2DEngine;
 import acore.aurora.utility.render.TextureStorage;
+
 import java.awt.*;
+
 import static acore.aurora.core.manager.IManager.mc;
 import static acore.aurora.utility.render.animation.AnimationUtility.fast;
+
 public class BooleanParentElement extends AbstractElement {
     private final Setting<BooleanSettingGroup> parentSetting;
-    private float anim, arrowAnim;
-    private static final Color TRACK_OFF = new Color(50, 50, 62, 220);
-    private static final Color KNOB      = new Color(248, 248, 250, 255);
-    private static final Color NAME_COL  = new Color(200, 200, 212, 255);
+
     public BooleanParentElement(Setting setting) {
         super(setting);
         this.parentSetting = setting;
     }
+
+    float animation, arrowAnimation;
+
     @Override
-    public void render(DrawContext ctx, int mx, int my, float delta) {
-        super.render(ctx, mx, my, delta);
-        anim      = fast(anim,      parentSetting.getValue().isEnabled()  ? 1f : 0f, 20f);
-        arrowAnim = fast(arrowAnim, parentSetting.getValue().isExtended() ? 0f : 1f, 15f);
-        MatrixStack ms = ctx.getMatrices();
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.render(context, mouseX, mouseY, delta);
+
+        MatrixStack matrixStack = context.getMatrices();
+
         float tx = x + width - 11;
         float ty = y + 7.5f;
-        ms.push();
-        ms.translate(tx, ty, 0);
-        ms.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-180f * arrowAnim));
-        ms.translate(-tx, -ty, 0);
-        ms.translate(x + width - 14, y + 4.5f, 0);
-        ctx.drawTexture(TextureStorage.guiArrow, 0, 0, 0, 0, 6, 6, 6, 6);
-        ms.translate(-(x + width - 14), -(y + 4.5f), 0);
-        ms.pop();
-        FontRenderers.sf_medium_mini.drawString(ms, setting.getName(),
-                x + 6, y + height / 2f - 1f, NAME_COL.getRGB());
-        float trackW = 20f;
-        float trackH = 9f;
-        float trackX = x + width - trackW - 20;
-        float trackY = y + height / 2f - trackH / 2f;
-        Color raw = HudEditor.getColor(0);
-        Color accent = (raw.getAlpha() < 10 || (raw.getRed() < 5 && raw.getGreen() < 5 && raw.getBlue() < 5))
-                ? new Color(200, 80, 80, 255) : raw;
-        int cr = (int)(TRACK_OFF.getRed()   + (accent.getRed()   - TRACK_OFF.getRed())   * anim);
-        int cg = (int)(TRACK_OFF.getGreen() + (accent.getGreen() - TRACK_OFF.getGreen()) * anim);
-        int cb = (int)(TRACK_OFF.getBlue()  + (accent.getBlue()  - TRACK_OFF.getBlue())  * anim);
-        Render2DEngine.drawRound(ms, trackX, trackY, trackW, trackH, 5f, new Color(cr, cg, cb, 220));
-        float ks = trackH - 3f;
-        float kt = trackW - ks - 3f;
-        Render2DEngine.drawRound(ms, trackX + 1.5f + kt * anim, trackY + 1.5f, ks, ks, 4f, KNOB);
-        if (Render2DEngine.isHovered(mx, my, trackX, trackY, trackW, trackH)) {
-            if (GLFW.glfwGetPlatform() != GLFW.GLFW_PLATFORM_WAYLAND)
+
+        arrowAnimation = fast(arrowAnimation, getParentSetting().getValue().isExtended() ? 0 : 1, 15f);
+
+        matrixStack.push();
+        matrixStack.translate(tx, ty, 0);
+        matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-180f * arrowAnimation));
+        matrixStack.translate(-tx, -ty, 0);
+        matrixStack.translate((x + width - 14), (y + 4.5f), 0);
+        context.drawTexture(TextureStorage.guiArrow, 0, 0, 0, 0, 6, 6, 6, 6);
+        matrixStack.translate(-(x + width - 14), -(y + 4.5f), 0);
+        matrixStack.pop();
+
+        FontRenderers.sf_medium_mini.drawString(matrixStack, setting.getName(), x + 6, y + height / 2 - 1f, new Color(-1).getRGB());
+        animation = fast(animation, getParentSetting().getValue().isEnabled() ? 1 : 0, 15f);
+        float paddingX = 7f * animation;
+        Color color = HudEditor.getColor(0);
+        Render2DEngine.drawRound(context.getMatrices(), x + width - 36, y + height / 2 - 4, 15, 8, 1, paddingX > 4 ? color : new Color(0x28FFFFFF, true));
+        Render2DEngine.drawRound(context.getMatrices(), x + width - 35f + paddingX, y + height / 2 - 3, 6, 6, 1, new Color(-1));
+
+        if (7f * animation > 4) {
+            FontRenderers.sf_bold_mini.drawString(context.getMatrices(), "v", x + width - 34f, y + height / 2 - 2f, new Color(-1).getRGB());
+        } else {
+            FontRenderers.sf_bold_mini.drawString(context.getMatrices(), "x", x + width - 27f, y + height / 2 - 2f, new Color(-1).getRGB());
+        }
+
+        if (Render2DEngine.isHovered(mouseX, mouseY, x + width - 36, y + height / 2 - 4, 15, 8)) {
+            if (GLFW.glfwGetPlatform() != GLFW.GLFW_PLATFORM_WAYLAND) {
                 GLFW.glfwSetCursor(mc.getWindow().getHandle(),
                         GLFW.glfwCreateStandardCursor(GLFW.GLFW_HAND_CURSOR));
+            }
             ClickGUI.anyHovered = true;
         }
     }
+
     @Override
-    public void mouseClicked(int mx, int my, int button) {
+    public void mouseClicked(int mouseX, int mouseY, int button) {
         if (hovered) {
-            float trackW = 20f;
-            float trackH = 9f;
-            float trackX = x + width - trackW - 20;
-            float trackY = y + height / 2f - trackH / 2f;
-            if (Render2DEngine.isHovered(mx, my, trackX, trackY, trackW, trackH)) {
-                parentSetting.getValue().setEnabled(!parentSetting.getValue().isEnabled());
+            if (button == 0) {
+                getParentSetting().getValue().setEnabled(!getParentSetting().getValue().isEnabled());
                 Managers.SOUND.playBoolean();
             } else {
-                parentSetting.getValue().setExtended(!parentSetting.getValue().isExtended());
-                if (parentSetting.getValue().isExtended()) Managers.SOUND.playSwipeIn();
-                else Managers.SOUND.playSwipeOut();
+                getParentSetting().getValue().setExtended(!getParentSetting().getValue().isExtended());
+                if (getParentSetting().getValue().isExtended()) {
+                    Managers.SOUND.playSwipeIn();
+                } else {
+                    Managers.SOUND.playSwipeOut();
+                }
             }
         }
-        super.mouseClicked(mx, my, button);
+        super.mouseClicked(mouseX, mouseY, button);
     }
-    public Setting<BooleanSettingGroup> getParentSetting() { return parentSetting; }
-                        }
+
+    public Setting<BooleanSettingGroup> getParentSetting() {
+        return parentSetting;
+    }
+                                                  }
+                    
