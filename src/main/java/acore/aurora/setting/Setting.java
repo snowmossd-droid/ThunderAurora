@@ -233,4 +233,5 @@ public class Setting<T> {
     public boolean not(T v) {
         return value != v;
     }
-}
+            }
+    
