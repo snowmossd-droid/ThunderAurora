@@ -187,13 +187,13 @@ public class SoundManager implements IManager {
                     0, 0, 0, true
                 ) {
                     @Override
-                    public net.minecraft.client.sound.SoundSet getSoundSet(net.minecraft.client.sound.SoundManager manager) {
+                    public net.minecraft.client.sound.WeightedSoundSet getSoundSet(net.minecraft.client.sound.SoundManager manager) {
                         return null;
                     }
                     @Override
                     public net.minecraft.client.sound.Sound getSound() {
                         return new net.minecraft.client.sound.Sound(
-                            soundFile.toURI().toString(),
+                            Identifier.of("acoreaurora", soundFile.getName().replace(".ogg", "").toLowerCase()),
                             () -> volume, () -> 1.0f, 1,
                             net.minecraft.client.sound.Sound.RegistrationType.FILE,
                             true, false, 16
