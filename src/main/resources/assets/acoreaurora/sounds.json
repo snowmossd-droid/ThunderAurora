@@ -9,11 +9,6 @@
       "acoreaurora:keyrelease"
     ]
   },
-  "uwu": {
-    "sounds": [
-      "acoreaurora:uwu"
-    ]
-  },
   "disable": {
     "sounds": [
       "acoreaurora:disable"
@@ -22,26 +17,6 @@
   "enable": {
     "sounds": [
       "acoreaurora:enable"
-    ]
-  },
-  "moan1": {
-    "sounds": [
-      "acoreaurora:moan1"
-    ]
-  },
-  "moan2": {
-    "sounds": [
-      "acoreaurora:moan2"
-    ]
-  },
-  "moan3": {
-    "sounds": [
-      "acoreaurora:moan3"
-    ]
-  },
-  "moan4": {
-    "sounds": [
-      "acoreaurora:moan4"
     ]
   },
   "skeet": {
