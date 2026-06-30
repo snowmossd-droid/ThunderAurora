@@ -66,6 +66,8 @@ public class AcoreAurora implements ModInitializer {
         Managers.init();
         Managers.subscribe();
 
+        acore.aurora.utility.render.ThemeManager.INSTANCE.init();
+
         Render2DEngine.initShaders();
         ModuleManager.rpc.startRpc();
 
