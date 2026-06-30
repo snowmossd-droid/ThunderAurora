@@ -52,7 +52,7 @@ public class WaterMark extends HudElement {
         float nameW = FontRenderers.sf_bold_mini.getStringWidth(username);
         String pingText = ping + "ms";
         float pingW = FontRenderers.sf_bold_mini.getStringWidth(pingText);
-        float serverW = showServer && !compact ? FontRenderers.sf_bold_mini.getStringWidth(server) : 0;
+        float serverW = showServer.getValue() && !compact ? FontRenderers.sf_bold_mini.getStringWidth(server) : 0;
 
         float contentW = LOGO_BOX + 6 + 4 + FontRenderers.sf_bold.getStringWidth("Aurora") + 8;
         if (!compact) {
@@ -111,4 +111,3 @@ public class WaterMark extends HudElement {
         textUtil.tick();
     }
     }
-            
