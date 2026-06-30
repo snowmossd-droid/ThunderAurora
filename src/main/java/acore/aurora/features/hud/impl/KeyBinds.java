@@ -14,6 +14,8 @@ import acore.aurora.utility.render.Render2DEngine;
 import acore.aurora.utility.render.animation.AnimationUtility;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class KeyBinds extends HudElement {
@@ -21,8 +23,28 @@ public class KeyBinds extends HudElement {
     public final Setting<ColorSetting> offcolor = new Setting<>("OffColor", new ColorSetting(1));
     public final Setting<Boolean> onlyEnabled = new Setting<>("OnlyEnabled", false);
 
+    private static final Map<String, String> CAT_ICONS = new HashMap<>();
+    static {
+        CAT_ICONS.put("Combat",   "f");
+        CAT_ICONS.put("Movement", "w");
+        CAT_ICONS.put("Render",   "E");
+        CAT_ICONS.put("Player",   "r");
+        CAT_ICONS.put("Misc",     "v");
+    }
+
+    private static final int   CARD_H        = 22;
+    private static final int   CARD_GAP      = 4;
+    private static final int   CARD_PAD      = 6;
+    private static final int   ICON_BOX      = 16;
+    private static final float CARD_RADIUS   = 6f;
+    private static final Color CARD_BG_ON    = new Color(0x34, 0x3A, 0x48, 235);
+    private static final Color CARD_BG_OFF   = new Color(0x1D, 0x25, 0x36, 200);
+    private static final Color ICON_BG_ON    = new Color(0x4A, 0x52, 0x62, 255);
+    private static final Color ICON_BG_OFF   = new Color(0x2A, 0x32, 0x42, 255);
+    private static final Color KEY_BG        = new Color(0x10, 0x14, 0x1E, 220);
+
     public KeyBinds() {
-        super("KeyBinds", 100, 100);
+        super("KeyBinds", 130, 100);
     }
 
     private float vAnimation, hAnimation;
@@ -30,70 +52,75 @@ public class KeyBinds extends HudElement {
     public void onRender2D(DrawContext context) {
         super.onRender2D(context);
 
-        int y_offset1 = 0;
-        float max_width = 50;
-        float maxBindWidth = 0;
+        int   visibleCount = 0;
+        float maxNameWidth = 0;
+        float maxKeyWidth  = 0;
 
-        float pointerX = 0;
         for (Module feature : Managers.MODULE.modules) {
             if (feature.isDisabled() && onlyEnabled.getValue()) continue;
-            if (!Objects.equals(feature.getBind().getBind(), "None") && feature != ModuleManager.clickGui && feature != ModuleManager.thunderHackGui) {
-                if (y_offset1 == 0)
-                    y_offset1 += 4;
+            if (Objects.equals(feature.getBind().getBind(), "None")
+                    || feature == ModuleManager.clickGui || feature == ModuleManager.thunderHackGui) continue;
 
-                y_offset1 += 9;
-
-                float nameWidth = FontRenderers.sf_bold_mini.getStringWidth(feature.getName());
-                float bindWidth = FontRenderers.sf_bold_mini.getStringWidth(getShortKeyName(feature));
-
-                if (bindWidth > maxBindWidth)
-                    maxBindWidth = bindWidth;
-
-                if(nameWidth > pointerX)
-                    pointerX = nameWidth;
-            }
+            visibleCount++;
+            float nameWidth = FontRenderers.sf_bold_mini.getStringWidth(feature.getName());
+            float keyWidth  = FontRenderers.sf_bold_mini.getStringWidth(getShortKeyName(feature));
+            if (nameWidth > maxNameWidth) maxNameWidth = nameWidth;
+            if (keyWidth  > maxKeyWidth)  maxKeyWidth  = keyWidth;
         }
 
-        float px = getPosX() + 10 + pointerX;
-        max_width = Math.max(20 + pointerX + maxBindWidth, 50);
+        float targetW = ICON_BOX + CARD_PAD * 3 + maxNameWidth + 18 + maxKeyWidth + 4;
+        targetW = Math.max(targetW, 90);
+        float targetH = visibleCount > 0 ? visibleCount * (CARD_H + CARD_GAP) - CARD_GAP : 0;
 
-        vAnimation = AnimationUtility.fast(vAnimation, 14 + y_offset1, 15);
-        hAnimation = AnimationUtility.fast(hAnimation, max_width, 15);
+        hAnimation = AnimationUtility.fast(hAnimation, targetW, 15);
+        vAnimation = AnimationUtility.fast(vAnimation, targetH, 15);
 
-        Render2DEngine.drawHudBase(context.getMatrices(), getPosX(), getPosY(), hAnimation, vAnimation, HudEditor.hudRound.getValue());
-
-        if (HudEditor.hudStyle.is(HudEditor.HudStyle.Glowing)) {
-            FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), "KeyBinds", getPosX() + hAnimation / 2, getPosY() + 4, HudEditor.getColor(0));
-        } else {
-            FontRenderers.sf_bold.drawGradientCenteredString(context.getMatrices(), "KeyBinds", getPosX() + hAnimation / 2, getPosY() + 4, 10);
+        if (vAnimation <= 0.5f) {
+            setBounds(getPosX(), getPosY(), Math.max(hAnimation, 1), 1);
+            return;
         }
 
-        if (y_offset1 > 0) {
-            if (HudEditor.hudStyle.is(HudEditor.HudStyle.Blurry)) {
-                Render2DEngine.drawRectDumbWay(context.getMatrices(), getPosX() + 4, getPosY() + 13, getPosX() + getWidth() - 4, getPosY() + 13.5f, new Color(0x54FFFFFF, true));
-            } else {
-                Render2DEngine.horizontalGradient(context.getMatrices(), getPosX() + 2, getPosY() + 13.7f, getPosX() + 2 + hAnimation / 2f - 2, getPosY() + 14, Render2DEngine.injectAlpha(HudEditor.getColor(0), 0), HudEditor.getColor(0));
-                Render2DEngine.horizontalGradient(context.getMatrices(), getPosX() + 2 + hAnimation / 2f - 2, getPosY() + 13.7f, getPosX() + 2 + hAnimation - 4, getPosY() + 14, HudEditor.getColor(0), Render2DEngine.injectAlpha(HudEditor.getColor(0), 0));
-            }
-        }
+        Render2DEngine.addWindow(context.getMatrices(), getPosX(), getPosY(),
+                getPosX() + hAnimation, getPosY() + vAnimation, 1f);
 
-        Render2DEngine.addWindow(context.getMatrices(), getPosX(), getPosY(), getPosX() + hAnimation, getPosY() + vAnimation, 1f);
-        int y_offset = 0;
+        float cardY = getPosY();
         for (Module feature : Managers.MODULE.modules) {
-            if (feature.isDisabled() && onlyEnabled.getValue())
-                continue;
-            if (!Objects.equals(feature.getBind().getBind(), "None") && feature != ModuleManager.clickGui && feature != ModuleManager.thunderHackGui) {
-                FontRenderers.sf_bold_mini.drawString(context.getMatrices(), feature.getName(), getPosX() + 5, getPosY() + 19 + y_offset, feature.isOn() ? oncolor.getValue().getColor() : offcolor.getValue().getColor());
-                FontRenderers.sf_bold_mini.drawCenteredString(context.getMatrices(),  getShortKeyName(feature),
+            if (feature.isDisabled() && onlyEnabled.getValue()) continue;
+            if (Objects.equals(feature.getBind().getBind(), "None")
+                    || feature == ModuleManager.clickGui || feature == ModuleManager.thunderHackGui) continue;
 
-                        px + (getPosX() + max_width - px) / 2f,
+            boolean on = feature.isOn();
+            Color cardBg = on ? CARD_BG_ON : CARD_BG_OFF;
+            Color iconBg = on ? ICON_BG_ON : ICON_BG_OFF;
+            Color textColor = on ? oncolor.getValue().getColor() : offcolor.getValue().getColor();
 
-                        getPosY() + 19 + y_offset, feature.isOn() ? oncolor.getValue().getColor() : offcolor.getValue().getColor());
-                Render2DEngine.drawRect(context.getMatrices(), px, getPosY() + 17 + y_offset, 0.5f, 8, new Color(0x44FFFFFF, true));
+            Render2DEngine.drawRound(context.getMatrices(), getPosX(), cardY, hAnimation, CARD_H, CARD_RADIUS, cardBg);
 
-                y_offset += 9;
+            float iconY = cardY + (CARD_H - ICON_BOX) / 2f;
+            Render2DEngine.drawRound(context.getMatrices(), getPosX() + CARD_PAD, iconY, ICON_BOX, ICON_BOX, 4f, iconBg);
+            String icon = CAT_ICONS.getOrDefault(feature.category.toString(), "");
+            if (!icon.isEmpty()) {
+                float iw = FontRenderers.icons.getStringWidth(icon);
+                FontRenderers.icons.drawString(context.getMatrices(), icon,
+                        getPosX() + CARD_PAD + (ICON_BOX - iw) / 2f,
+                        iconY + 3.5f, on ? Color.WHITE.getRGB() : new Color(170, 178, 195).getRGB());
             }
+
+            float nameX = getPosX() + CARD_PAD * 2 + ICON_BOX;
+            FontRenderers.sf_bold_mini.drawString(context.getMatrices(), feature.getName(),
+                    nameX, cardY + CARD_H / 2f - 3.5f, textColor);
+
+            String keyStr = getShortKeyName(feature);
+            float keyW = FontRenderers.sf_bold_mini.getStringWidth(keyStr) + 8;
+            float keyX = getPosX() + hAnimation - CARD_PAD - keyW;
+            float keyY = cardY + (CARD_H - 12f) / 2f;
+            Render2DEngine.drawRound(context.getMatrices(), keyX, keyY, keyW, 12f, 3f, KEY_BG);
+            FontRenderers.sf_bold_mini.drawCenteredString(context.getMatrices(), keyStr,
+                    keyX + keyW / 2f, keyY + 2f, on ? oncolor.getValue().getColor() : new Color(170, 178, 195).getRGB());
+
+            cardY += CARD_H + CARD_GAP;
         }
+
         Render2DEngine.popWindow();
         setBounds(getPosX(), getPosY(), hAnimation, vAnimation);
     }
@@ -111,4 +138,5 @@ public class KeyBinds extends HudElement {
             default -> sbind.toUpperCase();
         };
     }
-}
+    }
+                
