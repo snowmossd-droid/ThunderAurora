@@ -17,7 +17,7 @@ public class CritSound extends Module {
 
     @EventHandler
     public void onAttack(@NotNull EventAttack event) {
-        if (!event.isPre()) return;
+        if (event.isPre()) return;
         if (!(event.getEntity() instanceof LivingEntity)) return;
 
         boolean isCrit = !mc.player.isOnGround()
@@ -31,4 +31,4 @@ public class CritSound extends Module {
 
         Managers.SOUND.playWither(1.0f);
     }
-}
+            }
