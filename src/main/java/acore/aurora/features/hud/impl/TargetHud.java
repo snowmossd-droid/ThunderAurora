@@ -106,6 +106,13 @@ public class TargetHud extends HudElement {
         }
     }
 
+    private Color higherHpColor(float animationFactor) {
+        float self = mc.player != null ? mc.player.getHealth() + mc.player.getAbsorptionAmount() : 0f;
+        boolean higher = mc.player == null || target == mc.player || self >= getHealth();
+        Color base = higher ? new Color(76, 255, 122) : new Color(255, 76, 76);
+        return Render2DEngine.applyOpacity(base, animationFactor);
+    }
+
     private void drawHealthDot(DrawContext context, float dotCenterX, float dotCenterY, float animationFactor) {
         float self = mc.player != null ? mc.player.getHealth() + mc.player.getAbsorptionAmount() : 0f;
         boolean higher = mc.player == null || target == mc.player || self >= getHealth();
@@ -125,12 +132,9 @@ public class TargetHud extends HudElement {
         healthAnimation.setValue(health);
         health = (float) healthAnimation.getAnimationD();
 
-        if (animation.getAnimationd() != 1 && !HudEditor.hudStyle.is(HudEditor.HudStyle.Blurry)) {
-            Render2DEngine.drawGradientBlurredShadow1(context.getMatrices(), getPosX() + 4, getPosY() + 4, 131, 40, 14, HudEditor.getColor(270), HudEditor.getColor(0), HudEditor.getColor(180), HudEditor.getColor(90));
-            Render2DEngine.renderRoundedGradientRect(context.getMatrices(), HudEditor.getColor(270), HudEditor.getColor(0), HudEditor.getColor(180), HudEditor.getColor(90), getPosX(), getPosY(), 137, 47.5f, 9);
-            Render2DEngine.drawRound(context.getMatrices(), getPosX() + 0.5f, getPosY() + 0.5f, 136f, 46, 9, Render2DEngine.injectAlpha(Color.BLACK, 220));
-        } else
-            Render2DEngine.drawHudBase2(context.getMatrices(), getPosX(), getPosY(), 137f, 47.5f, 9f, HudEditor.blurStrength.getValue(), HudEditor.blurOpacity.getValue(), animationFactor);
+        Render2DEngine.drawBlurredShadow(context.getMatrices(), getPosX() + 2, getPosY() + 2, 133, 43.5f, 10, new Color(0, 0, 0, (int)(90 * animationFactor)));
+        Render2DEngine.drawRound(context.getMatrices(), getPosX(), getPosY(), 137f, 47.5f, 9f, new Color(0x1D, 0x25, 0x36, (int)(235 * animationFactor)));
+        Render2DEngine.drawRoundBorder(context.getMatrices(), getPosX(), getPosY(), 137f, 47.5f, 9f, 1f, new Color(0x4A, 0x52, 0x62, (int)(160 * animationFactor)));
 
         setBounds(getPosX(), getPosY(), 137, 47.5f);
 
@@ -140,32 +144,30 @@ public class TargetHud extends HudElement {
             RenderSystem.setShaderTexture(0, mc.getEntityRenderDispatcher().getRenderer(target).getTexture(target));
         }
 
+        Render2DEngine.drawRound(context.getMatrices(), getPosX() + 4, getPosY() + 4, 38, 38, 8f, new Color(0x10, 0x14, 0x1E, (int)(255 * animationFactor)));
+
         context.getMatrices().push();
-        context.getMatrices().translate(getPosX() + 3.5f + 20, getPosY() + 3.5f + 20, 0);
+        context.getMatrices().translate(getPosX() + 4 + 19, getPosY() + 4 + 19, 0);
         context.getMatrices().scale(1 - hurtPercent / 15f, 1 - hurtPercent / 15f, 1f);
-        context.getMatrices().translate(-(getPosX() + 3.5f + 20), -(getPosY() + 3.5f + 20), 0);
+        context.getMatrices().translate(-(getPosX() + 4 + 19), -(getPosY() + 4 + 19), 0);
         RenderSystem.enableBlend();
         RenderSystem.colorMask(false, false, false, true);
         RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 0.0F);
         RenderSystem.clear(GL40C.GL_COLOR_BUFFER_BIT, false);
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
-        Render2DEngine.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, getPosX() + 3.5f, getPosY() + 3.5f, getPosX() + 3.5f + 40, getPosY() + 3.5f + 40, 7, 10);
+        Render2DEngine.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, getPosX() + 6, getPosY() + 6, getPosX() + 6 + 34, getPosY() + 6 + 34, 6, 10);
         RenderSystem.blendFunc(GL40C.GL_DST_ALPHA, GL40C.GL_ONE_MINUS_DST_ALPHA);
         RenderSystem.setShaderColor(animationFactor, animationFactor - hurtPercent / 2, animationFactor - hurtPercent / 2, (float) MathUtility.clamp(animation.getAnimationd(), 0, 1f));
-        Render2DEngine.renderTexture(context.getMatrices(), getPosX() + 3.5f, getPosY() + 3.5f, 40, 40, 8, 8, 8, 8, 64, 64);
-        Render2DEngine.renderTexture(context.getMatrices(), getPosX() + 3.5f, getPosY() + 3.5f, 40, 40, 40, 8, 8, 8, 64, 64);
+        Render2DEngine.renderTexture(context.getMatrices(), getPosX() + 6, getPosY() + 6, 34, 34, 8, 8, 8, 8, 64, 64);
+        Render2DEngine.renderTexture(context.getMatrices(), getPosX() + 6, getPosY() + 6, 34, 34, 40, 8, 8, 8, 64, 64);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         RenderSystem.defaultBlendFunc();
         context.getMatrices().pop();
 
-        if (HudEditor.hudStyle.is(HudEditor.HudStyle.Blurry)) {
-            Render2DEngine.drawRect(context.getMatrices(), getPosX() + 48, getPosY() + 32, 85f, 11f, 4f, (float) (0.15f * animation.getAnimationd()));
-            Render2DEngine.drawRect(context.getMatrices(), getPosX() + 48, getPosY() + 32, MathUtility.clamp((85 * (health / target.getMaxHealth())), 8, 85), 11f, 4f, (float) (animation.getAnimationd()));
-        } else {
-            Render2DEngine.drawGradientRound(context.getMatrices(), getPosX() + 48, getPosY() + 32, 85, 11, 4f, HudEditor.getColor(0).darker().darker(), HudEditor.getColor(0).darker().darker().darker().darker(), HudEditor.getColor(0).darker().darker().darker().darker(), HudEditor.getColor(0).darker().darker().darker().darker());
-            Render2DEngine.renderRoundedGradientRect(context.getMatrices(), HudEditor.getColor(270), HudEditor.getColor(0), HudEditor.getColor(0), HudEditor.getColor(270), getPosX() + 48, getPosY() + 32, (int) MathUtility.clamp((85 * (health / target.getMaxHealth())), 8, 85), 11, 4f);
-        }
+        Render2DEngine.drawRound(context.getMatrices(), getPosX() + 48, getPosY() + 32, 85, 11f, 4f, new Color(0x10, 0x14, 0x1E, (int)(220 * animationFactor)));
+        Render2DEngine.drawRound(context.getMatrices(), getPosX() + 48, getPosY() + 32, MathUtility.clamp((85 * (health / target.getMaxHealth())), 8, 85), 11f, 4f,
+                new Color(higherHpColor(animationFactor).getRGB(), true));
 
         FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), hpMode.getValue() == HPmodeEn.HP ? String.valueOf(Math.round(10.0 * getHealth()) / 10.0) : (((Math.round(10.0 * getHealth()) / 10.0) / 20f) * 100 + "%"), getPosX() + 92f, getPosY() + 35f,
                 Render2DEngine.applyOpacity(Colors.WHITE, animationFactor));
@@ -200,12 +202,9 @@ public class TargetHud extends HudElement {
         healthAnimation.setValue(health);
         health = (float) healthAnimation.getAnimationD();
 
-        if (animation.getAnimationd() != 1 && !HudEditor.hudStyle.is(HudEditor.HudStyle.Blurry)) {
-            Render2DEngine.drawGradientBlurredShadow1(context.getMatrices(), getPosX() + 2, getPosY() + 2, 91, 31, 12, HudEditor.getColor(270), HudEditor.getColor(0), HudEditor.getColor(180), HudEditor.getColor(90));
-            Render2DEngine.renderRoundedGradientRect(context.getMatrices(), HudEditor.getColor(270), HudEditor.getColor(0), HudEditor.getColor(180), HudEditor.getColor(90), getPosX(), getPosY(), 95, 35, 7);
-            Render2DEngine.drawRound(context.getMatrices(), getPosX() + 0.5f, getPosY() + 0.5f, 94, 34, 7, Render2DEngine.injectAlpha(Color.BLACK, 220));
-        } else
-            Render2DEngine.drawHudBase2(context.getMatrices(), getPosX(), getPosY(), 95, 35.5f, 8, HudEditor.blurStrength.getValue(), HudEditor.blurOpacity.getValue(), animationFactor);
+        Render2DEngine.drawBlurredShadow(context.getMatrices(), getPosX() + 2, getPosY() + 2, 91, 31.5f, 8, new Color(0, 0, 0, (int)(90 * animationFactor)));
+        Render2DEngine.drawRound(context.getMatrices(), getPosX(), getPosY(), 95, 35.5f, 7f, new Color(0x1D, 0x25, 0x36, (int)(235 * animationFactor)));
+        Render2DEngine.drawRoundBorder(context.getMatrices(), getPosX(), getPosY(), 95, 35.5f, 7f, 1f, new Color(0x4A, 0x52, 0x62, (int)(160 * animationFactor)));
 
         setBounds(getPosX(), getPosY(), 95, 35.5f);
 
@@ -214,6 +213,8 @@ public class TargetHud extends HudElement {
         } else {
             RenderSystem.setShaderTexture(0, mc.getEntityRenderDispatcher().getRenderer(target).getTexture(target));
         }
+
+        Render2DEngine.drawRound(context.getMatrices(), getPosX() + 2.5f, getPosY() + 2.5f, 30, 30, 6f, new Color(0x10, 0x14, 0x1E, (int)(255 * animationFactor)));
 
         context.getMatrices().push();
         context.getMatrices().translate(getPosX() + 2.5 + 15, getPosY() + 2.5 + 15, 0);
@@ -233,13 +234,9 @@ public class TargetHud extends HudElement {
         RenderSystem.defaultBlendFunc();
         context.getMatrices().pop();
 
-        if (HudEditor.hudStyle.is(HudEditor.HudStyle.Blurry)) {
-            Render2DEngine.drawRect(context.getMatrices(), getPosX() + 38, getPosY() + 25, 52f, 7f, 2f, (float) (0.15f * animation.getAnimationd()));
-            Render2DEngine.drawRect(context.getMatrices(), getPosX() + 38, getPosY() + 25, MathUtility.clamp((52f * (health / target.getMaxHealth())), 8, 52), 7f, 2f, (float) (animation.getAnimationd()));
-        } else {
-            Render2DEngine.drawGradientRound(context.getMatrices(), getPosX() + 38, getPosY() + 25, 52, 7, 2f, HudEditor.getColor(0).darker().darker(), HudEditor.getColor(0).darker().darker().darker().darker(), HudEditor.getColor(0).darker().darker().darker().darker(), HudEditor.getColor(0).darker().darker().darker().darker());
-            Render2DEngine.renderRoundedGradientRect(context.getMatrices(), HudEditor.getColor(270), HudEditor.getColor(0), HudEditor.getColor(0), HudEditor.getColor(270), getPosX() + 38, getPosY() + 25, (int) MathUtility.clamp((52 * (health / target.getMaxHealth())), 8, 52), 7, 2f);
-        }
+        Render2DEngine.drawRound(context.getMatrices(), getPosX() + 38, getPosY() + 25, 52f, 7f, 2f, new Color(0x10, 0x14, 0x1E, (int)(220 * animationFactor)));
+        Render2DEngine.drawRound(context.getMatrices(), getPosX() + 38, getPosY() + 25, MathUtility.clamp((52f * (health / target.getMaxHealth())), 8, 52), 7f, 2f,
+                new Color(higherHpColor(animationFactor).getRGB(), true));
 
         FontRenderers.sf_bold_mini.drawCenteredString(context.getMatrices(), hpMode.getValue() == HPmodeEn.HP ? String.valueOf(Math.round(10.0 * getHealth()) / 10.0) : (((Math.round(10.0 * getHealth()) / 10.0) / 20f) * 100 + "%"), getPosX() + 65, getPosY() + 27f, Render2DEngine.applyOpacity(Colors.WHITE, animationFactor));
 
@@ -298,4 +295,5 @@ public class TargetHud extends HudElement {
     public enum HPmodeEn {
         HP, Percentage
     }
-                                        }
+    }
+                              
