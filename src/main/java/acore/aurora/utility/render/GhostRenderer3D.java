@@ -15,17 +15,13 @@ import acore.aurora.features.modules.Module;
 import acore.aurora.features.modules.render.HudEditor;
 
 public class GhostRenderer3D {
-    private static final float TRAIL_LENGTH = 7.0F;
+    private static final float TRAIL_LENGTH = 14.0F;
     private static final double TRAIL_POINT_SPACING = 0.16;
-    private static final int MAX_POINTS_PER_TICK = 6;
     public static final double TRAIL_VERTICAL_OFFSET = 0.7;
-    private static final float INNER_GLOW_SCALE = 1.8F;
-    private static final float OUTER_GLOW_SCALE = 2.6F;
-    private static final float INNER_GLOW_ALPHA = 0.42F;
-    private static final float OUTER_GLOW_ALPHA = 0.2F;
     private Vec3d prevPosition = Vec3d.ZERO;
     private Vec3d position;
     private Vec3d motion;
+    private Vec3d lastSpawnPos = null;
     private final List<Vector4f> tail = new ArrayList<>();
     private final float size;
     private final float trailLength;
@@ -45,14 +41,13 @@ public class GhostRenderer3D {
     public void tick() {
         this.prevPosition = this.position;
         this.position = this.position.add(this.motion);
-        this.addTrailPoints(this.prevPosition, this.position);
+        this.spawnDot(this.position);
         float fps = Math.max(Module.mc.getCurrentFps(), 5);
-        float deltaY = 0.004F / fps * 300.0F;
         float deltaLife = 0.3F / fps * 300.0F;
         Iterator<Vector4f> iterator = this.tail.iterator();
         while (iterator.hasNext()) {
             Vector4f vec = iterator.next();
-            vec.set(vec.x(), vec.y() + deltaY, vec.z(), vec.w() - deltaLife);
+            vec.set(vec.x(), vec.y(), vec.z(), vec.w() - deltaLife);
             if (vec.w() <= 0.0F) {
                 iterator.remove();
             }
@@ -61,18 +56,10 @@ public class GhostRenderer3D {
         this.motion = this.motion.multiply(damp, damp, damp);
     }
 
-    private void addTrailPoints(Vec3d from, Vec3d to) {
-        double distance = from.distanceTo(to);
-        if (distance <= 1.0E-4) {
-            this.tail.add(new Vector4f((float)to.x, (float)(to.y + 0.7), (float)to.z, this.trailLength));
-        } else {
-            int interpolatedSteps = (int)Math.ceil(distance / TRAIL_POINT_SPACING) + 1;
-            int steps = Math.max(1, Math.min(MAX_POINTS_PER_TICK, interpolatedSteps));
-            for (int step = 1; step <= steps; step++) {
-                double delta = (double)step / steps;
-                Vec3d point = from.lerp(to, delta);
-                this.tail.add(new Vector4f((float)point.x, (float)(point.y + 0.7), (float)point.z, this.trailLength));
-            }
+    private void spawnDot(Vec3d at) {
+        if (lastSpawnPos == null || lastSpawnPos.distanceTo(at) >= TRAIL_POINT_SPACING) {
+            this.tail.add(new Vector4f((float)at.x, (float)(at.y + 0.7), (float)at.z, this.trailLength));
+            this.lastSpawnPos = at;
         }
     }
 
@@ -80,7 +67,7 @@ public class GhostRenderer3D {
         for (Vector4f vec : this.tail) {
             if (!(vec.w() <= 0.0F)) {
                 float progress = vec.w() / this.trailLength;
-                float miniSize = this.size * (0.55F + 0.45F * progress);
+                float miniSize = this.size * (0.5F + 0.5F * progress);
                 double relX = vec.x() - camera.getPos().x;
                 double relY = vec.y() - camera.getPos().y;
                 double relZ = vec.z() - camera.getPos().z;
@@ -96,7 +83,6 @@ public class GhostRenderer3D {
                 int r = color >> 16 & 0xFF;
                 int g = color >> 8 & 0xFF;
                 int b = color & 0xFF;
-                renderQuad(buffer, matrix, miniSize * 1.5F, r, g, b, scaleAlpha(alphaValue, 0.18000001F));
                 renderQuad(buffer, matrix, miniSize, r, g, b, alphaValue);
             }
         }
@@ -127,6 +113,7 @@ public class GhostRenderer3D {
     public void setPosition(Vec3d position) {
         this.prevPosition = position;
         this.position = position;
+        this.lastSpawnPos = null;
     }
 
     public Vec3d getMotion() {
@@ -136,5 +123,5 @@ public class GhostRenderer3D {
     public void setMotion(Vec3d motion) {
         this.motion = motion;
     }
-}
+    }
                           
