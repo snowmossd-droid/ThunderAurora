@@ -15,9 +15,9 @@ import acore.aurora.features.modules.Module;
 import acore.aurora.features.modules.render.HudEditor;
 
 public class GhostRenderer3D {
-    private static final float TRAIL_LENGTH = 20.5F;
-    private static final double TRAIL_POINT_SPACING = 0.045;
-    private static final int MAX_POINTS_PER_TICK = 10;
+    private static final float TRAIL_LENGTH = 7.0F;
+    private static final double TRAIL_POINT_SPACING = 0.16;
+    private static final int MAX_POINTS_PER_TICK = 6;
     public static final double TRAIL_VERTICAL_OFFSET = 0.7;
     private static final float INNER_GLOW_SCALE = 1.8F;
     private static final float OUTER_GLOW_SCALE = 2.6F;
@@ -66,8 +66,8 @@ public class GhostRenderer3D {
         if (distance <= 1.0E-4) {
             this.tail.add(new Vector4f((float)to.x, (float)(to.y + 0.7), (float)to.z, this.trailLength));
         } else {
-            int interpolatedSteps = (int)Math.ceil(distance / 0.045) + 1;
-            int steps = Math.max(2, Math.min(10, interpolatedSteps));
+            int interpolatedSteps = (int)Math.ceil(distance / TRAIL_POINT_SPACING) + 1;
+            int steps = Math.max(1, Math.min(MAX_POINTS_PER_TICK, interpolatedSteps));
             for (int step = 1; step <= steps; step++) {
                 double delta = (double)step / steps;
                 Vec3d point = from.lerp(to, delta);
@@ -80,7 +80,7 @@ public class GhostRenderer3D {
         for (Vector4f vec : this.tail) {
             if (!(vec.w() <= 0.0F)) {
                 float progress = vec.w() / this.trailLength;
-                float miniSize = this.size * progress;
+                float miniSize = this.size * (0.55F + 0.45F * progress);
                 double relX = vec.x() - camera.getPos().x;
                 double relY = vec.y() - camera.getPos().y;
                 double relZ = vec.z() - camera.getPos().z;
@@ -96,8 +96,7 @@ public class GhostRenderer3D {
                 int r = color >> 16 & 0xFF;
                 int g = color >> 8 & 0xFF;
                 int b = color & 0xFF;
-                renderQuad(buffer, matrix, miniSize * 2.6F, r, g, b, scaleAlpha(alphaValue, 0.11000001F));
-                renderQuad(buffer, matrix, miniSize * 1.8F, r, g, b, scaleAlpha(alphaValue, 0.23099999F));
+                renderQuad(buffer, matrix, miniSize * 1.5F, r, g, b, scaleAlpha(alphaValue, 0.18000001F));
                 renderQuad(buffer, matrix, miniSize, r, g, b, alphaValue);
             }
         }
@@ -137,4 +136,5 @@ public class GhostRenderer3D {
     public void setMotion(Vec3d motion) {
         this.motion = motion;
     }
-                          }
+}
+                          
