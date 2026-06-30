@@ -30,8 +30,9 @@ public class ModuleManager implements IManager {
     public ArrayList<Module> modules = new ArrayList<>();
     public List<Module> sortedModules = new ArrayList<>();
     public List<Integer> activeMouseKeys = new ArrayList<>();
-
+   
     public static MaceSwap maceSwap = new MaceSwap();
+    public static AutoAnchor autoanchor = new AutoAnchor();
     public static ElytraSwapArmor elytraSwapArmor = new ElytraSwapArmor();
     public static MaceDamage macedamage = new MaceDamage();
     public static AntiPacketException antiPacketException = new AntiPacketException();
