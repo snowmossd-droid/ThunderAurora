@@ -92,13 +92,13 @@ public class KeyBinds extends HudElement {
             boolean on = feature.isOn();
             Color cardBg = on ? CARD_BG_ON : CARD_BG_OFF;
             Color iconBg = on ? ICON_BG_ON : ICON_BG_OFF;
-            Color textColor = on ? oncolor.getValue().getColor() : offcolor.getValue().getColor();
+            int textColor = on ? oncolor.getValue().getColor() : offcolor.getValue().getColor();
 
             Render2DEngine.drawRound(context.getMatrices(), getPosX(), cardY, hAnimation, CARD_H, CARD_RADIUS, cardBg);
 
             float iconY = cardY + (CARD_H - ICON_BOX) / 2f;
             Render2DEngine.drawRound(context.getMatrices(), getPosX() + CARD_PAD, iconY, ICON_BOX, ICON_BOX, 4f, iconBg);
-            String icon = CAT_ICONS.getOrDefault(feature.category.toString(), "");
+            String icon = CAT_ICONS.getOrDefault(feature.getCategory().getName(), "");
             if (!icon.isEmpty()) {
                 float iw = FontRenderers.icons.getStringWidth(icon);
                 FontRenderers.icons.drawString(context.getMatrices(), icon,
@@ -138,5 +138,4 @@ public class KeyBinds extends HudElement {
             default -> sbind.toUpperCase();
         };
     }
-    }
-                
+                }
