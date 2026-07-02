@@ -24,6 +24,7 @@ public final class TextureStorage {
     public static final Identifier brokenShield = Identifier.of("acoreaurora", "textures/hud/elements/broken_shield.png");
     public static final Identifier miniLogo = Identifier.of("acoreaurora", "textures/hud/icons/mini_logo.png");
     public static final Identifier playerIcon = Identifier.of("acoreaurora", "textures/gui/headers/player.png");
+    public static final Identifier friendIcon = Identifier.of("acoreaurora", "textures/gui/elements/friendicon.png");
     public static final Identifier serverIcon = Identifier.of("acoreaurora", "textures/hud/icons/server.png");
     public static final Identifier proxyIcon = Identifier.of("acoreaurora", "textures/hud/icons/proxy.png");
     public static final Identifier waypoint = Identifier.of("acoreaurora", "textures/hud/elements/waypoint.png");
@@ -48,4 +49,5 @@ public final class TextureStorage {
     public static final Identifier crackedSkin = Identifier.of("acoreaurora", "textures/gui/elements/cracked.png");
     public static final Identifier questionPic = Identifier.of("acoreaurora", "textures/gui/helper/pic1.png");
     public static final Identifier cutie = Identifier.of("acoreaurora", "textures/gui/images/cutie.png");
-}
+    }
+    
