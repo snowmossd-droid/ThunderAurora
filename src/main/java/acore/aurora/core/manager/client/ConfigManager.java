@@ -410,17 +410,16 @@ public class ConfigManager implements IManager {
     }
 
     public void saveCurrentConfig() {
-        File file = new File(CONFIG_FOLDER_NAME + "/misc/currentcfg.txt");
+        if (currentConfig == null)
+            return;
+
+        File file = new File(MISC_FOLDER, "currentcfg.txt");
         try {
-            if (file.exists()) {
-                FileWriter writer = new FileWriter(file);
-                writer.write(currentConfig.getName().replace(".th", ""));
-                writer.close();
-            } else {
+            if (!file.exists())
                 file.createNewFile();
-                FileWriter writer = new FileWriter(file);
+
+            try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
                 writer.write(currentConfig.getName().replace(".th", ""));
-                writer.close();
             }
         } catch (Exception e) {
             LogUtils.getLogger().warn(e.getMessage());
@@ -428,14 +427,20 @@ public class ConfigManager implements IManager {
     }
 
     public File getCurrentConfig() {
-        File file = new File(CONFIG_FOLDER_NAME + "/misc/currentcfg.txt");
+        if (currentConfig != null)
+            return currentConfig;
+
+        File file = new File(MISC_FOLDER, "currentcfg.txt");
         String name = "config";
         try {
             if (file.exists()) {
-                Scanner reader = new Scanner(file);
-                while (reader.hasNextLine())
-                    name = reader.nextLine();
-                reader.close();
+                try (Scanner reader = new Scanner(file, StandardCharsets.UTF_8)) {
+                    while (reader.hasNextLine()) {
+                        String line = reader.nextLine().trim();
+                        if (!line.isEmpty())
+                            name = line;
+                    }
+                }
             }
         } catch (Exception e) {
             LogUtils.getLogger().warn(e.getMessage());
