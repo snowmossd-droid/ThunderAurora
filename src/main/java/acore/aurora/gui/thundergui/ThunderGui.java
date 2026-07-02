@@ -7,12 +7,17 @@ import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
 import acore.aurora.AcoreAurora;
 import acore.aurora.core.Managers;
+import acore.aurora.core.manager.client.ModuleManager;
 import acore.aurora.features.modules.Module;
 import acore.aurora.features.modules.render.AcoreAuroraGui;
 import acore.aurora.gui.font.FontRenderers;
+import acore.aurora.gui.windows.WindowsScreen;
+import acore.aurora.gui.windows.impl.FriendsWindow;
 import acore.aurora.setting.Setting;
 import acore.aurora.utility.render.Render2DEngine;
+import acore.aurora.utility.render.TextureStorage;
 import acore.aurora.utility.render.animation.EaseOutBack;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import acore.aurora.gui.thundergui.components.ModulePlate;
 import java.awt.Color;
@@ -213,6 +218,17 @@ public class ThunderGui extends Screen {
         boolean hov = mouseX >= btnX && mouseX <= btnX + 16 && mouseY >= btnY && mouseY <= btnY + 16;
         Render2DEngine.drawRound(ctx.getMatrices(), btnX, btnY, 16, 16, 2f, hov ? C_SEARCH.brighter() : C_SEARCH);
         FontRenderers.icons.drawString(ctx.getMatrices(), "p", btnX + 3, btnY + 3, -1);
+
+        int friendBtnX = btnX + 16 + 6;
+        int friendBtnY = sy + 2;
+        boolean friendHov = mouseX >= friendBtnX && mouseX <= friendBtnX + 16 && mouseY >= friendBtnY && mouseY <= friendBtnY + 16;
+        Render2DEngine.drawRound(ctx.getMatrices(), friendBtnX, friendBtnY, 16, 16, 2f, friendHov ? C_SEARCH.brighter() : C_SEARCH);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1f, 1f, 1f, friendHov ? 0.95f : 0.75f);
+        ctx.drawTexture(TextureStorage.friendIcon, friendBtnX + 3, friendBtnY + 3, 0, 0, 10, 10, 10, 10);
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        RenderSystem.disableBlend();
     }
 
     private void renderThemeBar(DrawContext ctx, int startX, int startY, int totalW, int mouseX, int mouseY) {
@@ -291,6 +307,19 @@ public class ThunderGui extends Screen {
             return true;
         }
 
+        int friendBtnX = btnX + 16 + 6;
+        int friendBtnY = searchY + 2;
+        if (mouseX >= friendBtnX && mouseX <= friendBtnX + 16 && mouseY >= friendBtnY && mouseY <= friendBtnY + 16) {
+            Setting<acore.aurora.setting.impl.PositionSetting> friendPos = ModuleManager.windows.friendPos;
+            mc.setScreen(new WindowsScreen(
+                    FriendsWindow.get(
+                            friendPos.getValue().getX() * mc.getWindow().getScaledWidth(),
+                            friendPos.getValue().getY() * mc.getWindow().getScaledHeight(),
+                            friendPos)
+            ));
+            return true;
+        }
+
         int idx = 0;
         for (Module.Category cat : categories) {
             int px = startX + idx++ * (PANEL_WIDTH + PANEL_GAP);
@@ -366,3 +395,4 @@ public class ThunderGui extends Screen {
         return super.charTyped(chr, modifiers);
     }
     }
+    
